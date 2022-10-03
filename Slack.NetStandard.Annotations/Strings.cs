@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 
 namespace Slack.NetStandard.Annotations
 {
@@ -12,6 +13,8 @@ namespace Slack.NetStandard.Annotations
         public static class Names
         {
             public const string PipelineField = "_pipeline";
+            public const string HandlerSuffix = "Handler";
+            public const string InitializeMethod = "Initialize";
         }
 
         public static class Usings
@@ -25,6 +28,8 @@ namespace Slack.NetStandard.Annotations
         public static class Types
         {
             public const string PipelineClass = "SlackPipeline";
+            public const string RequestHandlerInterface = "ISlackRequestHandler";
+            public const string Object = "object";
         }
     }
 }

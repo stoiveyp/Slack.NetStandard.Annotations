@@ -9,5 +9,13 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
     public partial class Example
     {
         private SlackPipeline<object> _pipeline;
+        public void Initialize()
+        {
+            _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new RenderHomePageHandler(this)});
+        }
+
+        private class RenderHomePageHandler
+        {
+        }
     }
 }

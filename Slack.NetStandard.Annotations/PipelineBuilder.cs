@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.VisualBasic;
 using Slack.NetStandard.RequestHandler;
 
 namespace Slack.NetStandard.Annotations;
@@ -14,7 +15,7 @@ public static class PipelineBuilder
                 SF.Token(SyntaxKind.PublicKeyword),
                 SF.Token(SyntaxKind.PartialKeyword)));
 
-        appClass = appClass.BuildApp(cls);
+        appClass = appClass.BuildApp(cls, reportDiagnostic);
 
         var usings = SF.List(new[]
         {
@@ -36,23 +37,42 @@ public static class PipelineBuilder
     }
 
     public static ClassDeclarationSyntax BuildApp(this ClassDeclarationSyntax appClass,
-        ClassDeclarationSyntax hostingClass)
+        ClassDeclarationSyntax originalClass, Action<Diagnostic> reportDiagnostic)
     {
+        var info = AppInformation.GenerateFrom(originalClass, reportDiagnostic);
+
         return appClass
-            .AddPipelineField();
+            .AddPipelineField()
+            .PipelineInitialization(info);
     }
 
-    public static ClassDeclarationSyntax AddPipelineField(this ClassDeclarationSyntax skillClass)
+    public static ClassDeclarationSyntax PipelineInitialization(this ClassDeclarationSyntax appClass,
+        AppInformation information)
     {
-        var field = SF.FieldDeclaration(SF.VariableDeclaration(PipelineType(nameof(Object).ToLower())))
+        var argumentList = new List<ArgumentSyntax> { information.HandlerArray() };
+
+        var newPipeline = SF.ObjectCreationExpression(PipelineType())
+            .WithArgumentList(SF.ArgumentList(SF.SeparatedList(argumentList)));
+
+        var initializeMethod =
+            SF.MethodDeclaration(SF.PredefinedType(SF.Token(SyntaxKind.VoidKeyword)), Strings.Names.InitializeMethod)
+                .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword)))
+                .AddBodyStatements(
+                    SF.ExpressionStatement(SF.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SF.IdentifierName(Strings.Names.PipelineField), newPipeline)));
+        return appClass.AddMembers(initializeMethod).AddMembers(information.Handlers);
+    }
+
+    public static ClassDeclarationSyntax AddPipelineField(this ClassDeclarationSyntax appClass)
+    {
+        var field = SF.FieldDeclaration(SF.VariableDeclaration(PipelineType()))
             .AddDeclarationVariables(SF.VariableDeclarator(Strings.Names.PipelineField))
             .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PrivateKeyword)));
-        return skillClass.AddMembers(field);
+        return appClass.AddMembers(field);
     }
 
     //new SlackPipeline<object>
 
-    private static TypeSyntax PipelineType(string requestType)
+    private static TypeSyntax PipelineType(string requestType = Strings.Types.Object)
     {
         return SF
             .GenericName(SF.Identifier(Strings.Types.PipelineClass)).WithTypeArgumentList(
