@@ -28,11 +28,3 @@ public class AppBuilder
         }
     }
 }
-
-public class PipelineBuilder
-{
-    public static CompilationUnitSyntax BuildPipelineClasses(ClassDeclarationSyntax cls, Action<Diagnostic> reportDiagnostic)
-    {
-        return SF.CompilationUnit();
-    }
-}
