@@ -17,7 +17,8 @@ namespace Slack.NetStandard.Annotations
             public const string InitializeMethod = "Initialize";
             public const string WrapperPropertyName = "_wrapper";
             public const string WrapperVarName = "wrapper";
-            public const string ExecuteMethodName = "Execute";
+            public const string HandleMethodName = "Handle";
+            public const string ContextParameter = "context";
         }
 
         public static class Usings
@@ -32,12 +33,17 @@ namespace Slack.NetStandard.Annotations
         {
             public const string PipelineClass = "SlackPipeline";
             public const string RequestHandlerInterface = "ISlackRequestHandler";
+            public const string EventHandler = "SlackEventHandler";
             public const string Object = "object";
             public const string Task = nameof(Task);
+            public const string SlackContext = nameof(SlackContext);
 
             public static GenericNameSyntax RequestHandlerWith(IdentifierNameSyntax? syntax = null) => SF
                 .GenericName(RequestHandlerInterface).WithTypeArgumentList(
                     SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(syntax ?? SF.IdentifierName(Object))));
+
+            public static GenericNameSyntax SlackEventHandler(TypeSyntax type) => SF.GenericName(EventHandler)
+                .WithTypeArgumentList(SF.TypeArgumentList(SF.SingletonSeparatedList(type)));
         }
     }
 }

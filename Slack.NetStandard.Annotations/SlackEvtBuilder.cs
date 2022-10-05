@@ -2,6 +2,8 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Slack.NetStandard.Annotations.Markers;
+using Slack.NetStandard.EventsApi.CallbackEvents;
+using Slack.NetStandard.RequestHandler.Handlers;
 
 namespace Slack.NetStandard.Annotations;
 
@@ -32,7 +34,7 @@ public static class SlackEvtBuilder
             yield return SF.ClassDeclaration(method.Identifier.Text + Strings.Names.HandlerSuffix)
                 .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PrivateKeyword)))
                 .WithBaseList(SF.BaseList(
-                    SF.SingletonSeparatedList<BaseTypeSyntax>(SF.SimpleBaseType(Strings.Types.RequestHandlerWith()))))
+                    SF.SingletonSeparatedList<BaseTypeSyntax>(SF.SimpleBaseType(Strings.Types.SlackEventHandler(method.ParameterList.Parameters.First().Type!)))))
                 .AddWrapperField(originalClass)
                 .AddWrapperConstructor(originalClass, null)
                 .AddExecuteMethod(method);
@@ -45,10 +47,20 @@ public static class SlackEvtBuilder
         var returnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
             SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(Strings.Types.Object))));
 
-        var newMethod = SF.MethodDeclaration(returnType, Strings.Names.ExecuteMethodName)
-            .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword), SF.Token(SyntaxKind.OverrideKeyword)));
+        var newMethod = SF.MethodDeclaration(returnType, Strings.Names.HandleMethodName)
+            .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword), SF.Token(SyntaxKind.OverrideKeyword)))
+            .WithParameterList(
+                SF.ParameterList(SF.SingletonSeparatedList(SF.Parameter(SF.Identifier(Strings.Names.ContextParameter)).WithType(SF.IdentifierName(Strings.Types.SlackContext)))));
 
-        return handlerClass.AddMembers(newMethod.WithBody(SF.Block()));
+        var runWrapper = SF.InvocationExpression(SF.MemberAccessExpression(
+            SyntaxKind.SimpleMemberAccessExpression, SF.IdentifierName(Strings.Names.ContextParameter),
+            SF.IdentifierName(method.Identifier.Text)),
+            SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(SF.IdentifierName(Strings.Names.ContextParameter))))
+        );
+
+        newMethod = newMethod.WithExpressionBody(SF.ArrowExpressionClause(runWrapper)).WithSemicolonToken(SF.Token(SyntaxKind.SemicolonToken));
+
+        return handlerClass.AddMembers(newMethod);
     }
 
     private static ClassDeclarationSyntax AddWrapperConstructor(this ClassDeclarationSyntax handlerClass, ClassDeclarationSyntax wrapperClass, ConstructorInitializerSyntax? initializer)
