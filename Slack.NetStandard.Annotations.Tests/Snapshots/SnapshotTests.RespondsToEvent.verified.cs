@@ -14,8 +14,16 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
             _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new RenderHomePageHandler(this)});
         }
 
-        private class RenderHomePageHandler
+        private class RenderHomePageHandler : SlackEventHandler<AppHomeOpened>
         {
+            private Example _wrapper { get; }
+
+            internal RenderHomePageHandler(Example wrapper)
+            {
+                _wrapper = wrapper;
+            }
+
+            public override Task<object> Handle(SlackContext context) => context.RenderHomePage(context);
         }
     }
 }
