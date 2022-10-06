@@ -9,5 +9,12 @@ namespace Slack.NetStandard.Annotations.Tests
             var sampleCode = System.IO.File.ReadAllText("Examples/EventHandler.cs");
             return Utility.Verify(sampleCode);
         }
+
+        [Fact]
+        public Task RespondsToSlashCommand()
+        {
+            var sampleCode = System.IO.File.ReadAllText("Examples/SlashCommand.cs");
+            return Utility.Verify(sampleCode);
+        }
     }
 }
