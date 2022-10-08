@@ -21,6 +21,7 @@ namespace Slack.NetStandard.Annotations
             public const string HandleMethodName = "Handle";
             public const string ContextParameter = "context";
             public const string EventProperty = "Event";
+            public const string SlackContextAbbreviation = "sc";
         }
 
         public static class Usings

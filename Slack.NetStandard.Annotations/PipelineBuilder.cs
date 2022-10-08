@@ -58,7 +58,8 @@ public static class PipelineBuilder
                 .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword)))
                 .AddBodyStatements(
                     SF.ExpressionStatement(SF.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SF.IdentifierName(Strings.Names.PipelineField), newPipeline)));
-        return appClass.AddMembers(initializeMethod).AddMembers(information.EventHandlers);
+
+        return appClass.AddMembers(initializeMethod).AddMembers(information.Handlers.SelectMany(g => g).ToArray());
     }
 
     public static ClassDeclarationSyntax AddPipelineField(this ClassDeclarationSyntax appClass)

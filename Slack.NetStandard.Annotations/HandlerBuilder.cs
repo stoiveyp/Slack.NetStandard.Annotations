@@ -2,43 +2,61 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Slack.NetStandard.Annotations.Markers;
-using Slack.NetStandard.EventsApi.CallbackEvents;
-using Slack.NetStandard.RequestHandler.Handlers;
 
 namespace Slack.NetStandard.Annotations;
 
-public static class SlackEvtBuilder
+public static class HandlerBuilder
 {
-    public static IEnumerable<MethodDeclarationSyntax> Filter(this IEnumerable<MethodDeclarationSyntax> methods)
-    {
-        foreach (var method in methods)
-        {
-            if (method.EventAttribute() != null)
-            {
-                yield return method;
-            }
-        }
-    }
-
-    internal static AttributeSyntax? EventAttribute(this MethodDeclarationSyntax method)
-    {
-        return method.AttributeLists.SelectMany(a => a.Attributes)
-            .FirstOrDefault(a => a.MarkerName() == nameof(RespondsToEventAttribute).NameOnly());
-    }
-
-    public static IEnumerable<ClassDeclarationSyntax?> Convert(this IEnumerable<MethodDeclarationSyntax> methods, ClassDeclarationSyntax originalClass, 
+    public static IEnumerable<(ClassDeclarationSyntax Cls, string Marker)> ConvertTagged(this 
+        IEnumerable<MethodDeclarationSyntax> methods,
+        ClassDeclarationSyntax originalClass,
         Action<Diagnostic> reportDiagnostic)
     {
         foreach (var method in methods)
         {
-            yield return SF.ClassDeclaration(method.Identifier.Text + Strings.Names.HandlerSuffix)
+            if (!method.TryGetAttributeName(out var marker)) continue;
+            if (marker == nameof(RespondsToEventAttribute).NameOnly())
+            {
+                var eventBase =
+                    SF.SimpleBaseType(
+                        Strings.Types.SlackEventHandler(method.ParameterList.Parameters.First().Type!));
+                yield return (Convert(method, eventBase,originalClass, reportDiagnostic), marker);
+            }
+        }
+    }
+
+    private static readonly string[] ValidMarkers = {
+        nameof(RespondsToEventAttribute).NameOnly(),
+        nameof(RespondsToSlashCommandAttribute).NameOnly()
+    };
+
+    internal static bool TryGetAttributeName(this MethodDeclarationSyntax method, out string? marker)
+    {
+        var markerName = method.AttributeLists.SelectMany(a => a.Attributes)
+            .Select(a => a.MarkerName()).FirstOrDefault(m => ValidMarkers.Contains(m));
+        
+        if (markerName == null)
+        {
+            marker = null;
+            return false;
+        }
+
+        marker = markerName;
+        return true;
+    }
+
+    public static ClassDeclarationSyntax Convert(this MethodDeclarationSyntax method, 
+        BaseTypeSyntax baseType,
+        ClassDeclarationSyntax originalClass, 
+        Action<Diagnostic> reportDiagnostic)
+    { 
+        return SF.ClassDeclaration(method.Identifier.Text + Strings.Names.HandlerSuffix)
                 .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PrivateKeyword)))
                 .WithBaseList(SF.BaseList(
-                    SF.SingletonSeparatedList<BaseTypeSyntax>(SF.SimpleBaseType(Strings.Types.SlackEventHandler(method.ParameterList.Parameters.First().Type!)))))
+                    SF.SingletonSeparatedList(baseType)))
                 .AddWrapperField(originalClass)
                 .AddWrapperConstructor(originalClass, null)
                 .AddExecuteMethod(method);
-        }
     }
 
     private static ClassDeclarationSyntax AddExecuteMethod(this ClassDeclarationSyntax handlerClass,
