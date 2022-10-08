@@ -11,8 +11,11 @@ namespace Slack.NetStandard.Annotations
         //            SF.ArgumentList(), null));
 
         public static NameSyntax? Build(params string[] pieces) => pieces.Aggregate<string?, NameSyntax?>(null, (current, piece) => current == null
-            ? SyntaxFactory.IdentifierName(piece!)
-            : SyntaxFactory.QualifiedName(current, SyntaxFactory.IdentifierName(piece!)));
+            ? SF.IdentifierName(piece!)
+            : SF.QualifiedName(current, SyntaxFactory.IdentifierName(piece!)));
+
+        public static NameSyntax Build(NameSyntax currentName, string piece) =>
+            SF.QualifiedName(currentName, SF.IdentifierName(piece));
 
         public static NameSyntax? Find(ClassDeclarationSyntax cls)
         {

@@ -2,6 +2,7 @@
 using System;
 using Slack.NetStandard;
 using Slack.NetStandard.RequestHandler;
+using Slack.NetStandard.RequestHandler.Handlers;
 using System.Threading.Tasks;
 
 namespace Slack.NetStandard.Annotations.Tests.Examples

@@ -1,8 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.VisualBasic;
-using Slack.NetStandard.RequestHandler;
 
 namespace Slack.NetStandard.Annotations;
 
@@ -22,6 +20,7 @@ public static class PipelineBuilder
             Strings.Usings.System(),
             Strings.Usings.SlackNetstandard(),
             Strings.Usings.SlackRequestHandler(),
+            Strings.Usings.Handlers(),
             Strings.Usings.Tasks(),
         }.Select(SF.UsingDirective!));
 
@@ -49,7 +48,7 @@ public static class PipelineBuilder
     public static ClassDeclarationSyntax PipelineInitialization(this ClassDeclarationSyntax appClass,
         AppInformation information)
     {
-        var argumentList = new List<ArgumentSyntax> { information.HandlerArray() };
+        var argumentList = new List<ArgumentSyntax> { information.PipelineHandlerArray() };
 
         var newPipeline = SF.ObjectCreationExpression(PipelineType())
             .WithArgumentList(SF.ArgumentList(SF.SeparatedList(argumentList)));
@@ -59,7 +58,7 @@ public static class PipelineBuilder
                 .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword)))
                 .AddBodyStatements(
                     SF.ExpressionStatement(SF.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SF.IdentifierName(Strings.Names.PipelineField), newPipeline)));
-        return appClass.AddMembers(initializeMethod).AddMembers(information.Handlers);
+        return appClass.AddMembers(initializeMethod).AddMembers(information.EventHandlers);
     }
 
     public static ClassDeclarationSyntax AddPipelineField(this ClassDeclarationSyntax appClass)

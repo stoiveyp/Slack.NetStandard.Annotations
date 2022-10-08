@@ -52,13 +52,23 @@ public static class SlackEvtBuilder
             .WithParameterList(
                 SF.ParameterList(SF.SingletonSeparatedList(SF.Parameter(SF.Identifier(Strings.Names.ContextParameter)).WithType(SF.IdentifierName(Strings.Types.SlackContext)))));
 
-        var runWrapper = SF.InvocationExpression(SF.MemberAccessExpression(
-            SyntaxKind.SimpleMemberAccessExpression, SF.IdentifierName(Strings.Names.ContextParameter),
-            SF.IdentifierName(method.Identifier.Text)),
-            SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(SF.IdentifierName(Strings.Names.ContextParameter))))
-        );
+        var mapper = ArgumentMapper.ForEventHandler(method);
 
-        newMethod = newMethod.WithExpressionBody(SF.ArrowExpressionClause(runWrapper)).WithSemicolonToken(SF.Token(SyntaxKind.SemicolonToken));
+        var runWrapper = SF.InvocationExpression(SF.MemberAccessExpression(
+            SyntaxKind.SimpleMemberAccessExpression, SF.IdentifierName(Strings.Names.WrapperPropertyName),
+            SF.IdentifierName(method.Identifier.Text)),
+            SF.ArgumentList(SF.SeparatedList(mapper.Arguments.Select(a => a.Argument))));
+
+        if (mapper.InlineOnly)
+        {
+            newMethod = newMethod.WithExpressionBody(SF.ArrowExpressionClause(runWrapper)).WithSemicolonToken(SF.Token(SyntaxKind.SemicolonToken));
+        }
+        else
+        {
+            newMethod = newMethod.WithBody(SF.Block(mapper.CommonStatements
+                .Concat(mapper.Arguments.SelectMany(a => a.Statements)).Concat(new StatementSyntax[]
+                    { SF.ExpressionStatement(runWrapper) })));
+        }
 
         return handlerClass.AddMembers(newMethod);
     }

@@ -6,7 +6,7 @@ using Slack.NetStandard.RequestHandler.Handlers;
 namespace ExampleApp
 {
     [SlackApp]
-    public class Example
+    public partial class Example
     {
         [RespondsToEvent]
         public async Task<object> GenerateHome(AppHomeOpened appHome)

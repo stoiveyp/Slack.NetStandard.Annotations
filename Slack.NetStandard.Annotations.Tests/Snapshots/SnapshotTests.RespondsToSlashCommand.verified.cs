@@ -12,7 +12,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         private SlackPipeline<object> _pipeline;
         public void Initialize()
         {
-            _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{});
+            _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new GroupedRequestHandler<object>(sc => sc.Event != null, new SlashCommandHandler(this), new SlashCommand2Handler(this))});
         }
 
         private class SlashCommandHandler : SlashCommandHandler<object>
