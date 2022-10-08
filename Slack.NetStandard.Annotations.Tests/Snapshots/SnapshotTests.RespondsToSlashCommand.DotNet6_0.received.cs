@@ -12,7 +12,31 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         private SlackPipeline<object> _pipeline;
         public void Initialize()
         {
-            _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{});
+            _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new GroupedRequestHandler<object>((sc) => sc.Command != null, new SlashCommandHandler(this), new SlashCommand2Handler(this))});
+        }
+
+        private class SlashCommandHandler : SlashCommandHandler<object>
+        {
+            private Example _wrapper { get; }
+
+            internal SlashCommandHandler(Example wrapper) : base("test")
+            {
+                _wrapper = wrapper;
+            }
+
+            public override Task<object> Handle(SlackContext context) => _wrapper.SlashCommand((SlashCommand)context.Event);
+        }
+
+        private class SlashCommand2Handler : SlashCommandHandler<object>
+        {
+            private Example _wrapper { get; }
+
+            internal SlashCommand2Handler(Example wrapper) : base("test2")
+            {
+                _wrapper = wrapper;
+            }
+
+            public override Task<object> Handle(SlackContext context) => _wrapper.SlashCommand2((SlashCommand)context.Event);
         }
     }
 }

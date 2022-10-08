@@ -22,6 +22,7 @@ namespace Slack.NetStandard.Annotations
             public const string ContextParameter = "context";
             public const string EventProperty = "Event";
             public const string SlackContextAbbreviation = "sc";
+            public const string CommandProperty = "Command";
         }
 
         public static class Usings
@@ -38,6 +39,7 @@ namespace Slack.NetStandard.Annotations
             public const string PipelineClass = "SlackPipeline";
             public const string RequestHandlerInterface = "ISlackRequestHandler";
             public const string EventHandler = "SlackEventHandler";
+            public const string CommandHandler = "SlashCommandHandler";
             public const string Object = "object";
             public const string Task = nameof(Task);
             public const string SlackContext = nameof(SlackContext);
@@ -49,6 +51,9 @@ namespace Slack.NetStandard.Annotations
 
             public static GenericNameSyntax SlackEventHandler(TypeSyntax type) => SF.GenericName(EventHandler)
                 .WithTypeArgumentList(SF.TypeArgumentList(SF.SeparatedList(new []{type, SF.IdentifierName(Object)})));
+
+            public static GenericNameSyntax SlashCommandHandler() => SF.GenericName(CommandHandler)
+            .WithTypeArgumentList(SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(Object))));
         }
     }
 }

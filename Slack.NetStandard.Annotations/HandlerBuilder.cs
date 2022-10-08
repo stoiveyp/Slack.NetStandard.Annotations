@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Slack.NetStandard.Annotations.Markers;
+using System.Diagnostics.Tracing;
 
 namespace Slack.NetStandard.Annotations;
 
@@ -15,12 +16,21 @@ public static class HandlerBuilder
         foreach (var method in methods)
         {
             if (!method.TryGetAttributeName(out var marker)) continue;
-            if (marker == nameof(RespondsToEventAttribute).NameOnly())
+            if (marker!.MarkerName() == nameof(RespondsToEventAttribute).NameOnly())
             {
                 var eventBase =
                     SF.SimpleBaseType(
                         Strings.Types.SlackEventHandler(method.ParameterList.Parameters.First().Type!));
-                yield return (Convert(method, eventBase,originalClass, reportDiagnostic), marker);
+                yield return (Convert(method, eventBase,null,originalClass, reportDiagnostic), marker!.MarkerName()!);
+            }
+
+            if (marker!.MarkerName() == nameof(RespondsToSlashCommandAttribute).NameOnly())
+            {
+                var commandBase =
+                    SF.SimpleBaseType(Strings.Types.SlashCommandHandler());
+                var initializer = SF.ConstructorInitializer(SyntaxKind.BaseConstructorInitializer,
+                    SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(marker.ArgumentList!.Arguments.First().Expression))));
+                yield return (Convert(method, commandBase, initializer, originalClass, reportDiagnostic), marker!.MarkerName()!);
             }
         }
     }
@@ -30,10 +40,10 @@ public static class HandlerBuilder
         nameof(RespondsToSlashCommandAttribute).NameOnly()
     };
 
-    internal static bool TryGetAttributeName(this MethodDeclarationSyntax method, out string? marker)
+    internal static bool TryGetAttributeName(this MethodDeclarationSyntax method, out AttributeSyntax? marker)
     {
         var markerName = method.AttributeLists.SelectMany(a => a.Attributes)
-            .Select(a => a.MarkerName()).FirstOrDefault(m => ValidMarkers.Contains(m));
+            .FirstOrDefault(a => ValidMarkers.Contains(a.MarkerName()));
         
         if (markerName == null)
         {
@@ -47,6 +57,7 @@ public static class HandlerBuilder
 
     public static ClassDeclarationSyntax Convert(this MethodDeclarationSyntax method, 
         BaseTypeSyntax baseType,
+        ConstructorInitializerSyntax? initializer,
         ClassDeclarationSyntax originalClass, 
         Action<Diagnostic> reportDiagnostic)
     { 
@@ -55,7 +66,7 @@ public static class HandlerBuilder
                 .WithBaseList(SF.BaseList(
                     SF.SingletonSeparatedList(baseType)))
                 .AddWrapperField(originalClass)
-                .AddWrapperConstructor(originalClass, null)
+                .AddWrapperConstructor(originalClass, initializer)
                 .AddExecuteMethod(method);
     }
 

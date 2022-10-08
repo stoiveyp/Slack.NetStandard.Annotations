@@ -2,8 +2,8 @@
 using System;
 using Slack.NetStandard;
 using Slack.NetStandard.RequestHandler;
-using System.Threading.Tasks;
 using Slack.NetStandard.RequestHandler.Handlers;
+using System.Threading.Tasks;
 
 namespace Slack.NetStandard.Annotations.Tests.Examples
 {
@@ -12,14 +12,14 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         private SlackPipeline<object> _pipeline;
         public void Initialize()
         {
-            _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new GroupedRequestHandler<object>(sc => sc.Event != null, new SlashCommandHandler(this), new SlashCommand2Handler(this))});
+            _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new GroupedRequestHandler<object>((sc) => sc.Command != null, new SlashCommandHandler(this), new SlashCommand2Handler(this))});
         }
 
         private class SlashCommandHandler : SlashCommandHandler<object>
         {
             private Example _wrapper { get; }
 
-            internal RenderHomePageHandler(Example wrapper):base("test")
+            internal SlashCommandHandler(Example wrapper) : base("test")
             {
                 _wrapper = wrapper;
             }
@@ -32,7 +32,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         {
             private Example _wrapper { get; }
 
-            internal RenderHomePageHandler(Example wrapper) : base("test2")
+            internal SlashCommand2Handler(Example wrapper) : base("test2")
             {
                 _wrapper = wrapper;
             }
