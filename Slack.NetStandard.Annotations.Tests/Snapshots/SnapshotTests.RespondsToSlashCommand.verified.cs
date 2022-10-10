@@ -24,8 +24,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
                 _wrapper = wrapper;
             }
 
-            public override Task<object> HandleCommand(SlashCommand command, SlackContext context) =>
-                _wrapper.SlashCommand(command);
+            public override Task<object> HandleCommand(SlashCommand slashCommand, SlackContext context) => _wrapper.SlashCommand(command);
         }
 
         private class SlashCommand2Handler : SlashCommandHandler<object>
@@ -37,8 +36,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
                 _wrapper = wrapper;
             }
 
-            public override Task<object> HandleCommand(SlashCommand command, SlackContext context) =>
-                _wrapper.SlashCommand2(command);
+            public override Task<object> HandleCommand(SlashCommand slashCommand, SlackContext context) => _wrapper.SlashCommand2(command);
         }
     }
 }
