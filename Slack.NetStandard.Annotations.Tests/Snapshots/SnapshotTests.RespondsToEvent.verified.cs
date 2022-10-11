@@ -2,6 +2,7 @@
 using System;
 using Slack.NetStandard;
 using Slack.NetStandard.RequestHandler;
+using Slack.NetStandard.RequestHandler.Handlers;
 using System.Threading.Tasks;
 
 namespace Slack.NetStandard.Annotations.Tests.Examples
@@ -14,7 +15,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
             _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new RenderHomePageHandler(this)});
         }
 
-        private class RenderHomePageHandler : SlackEventHandler<AppHomeOpened>
+        private class RenderHomePageHandler : SlackEventHandler<AppHomeOpened, object>
         {
             private Example _wrapper { get; }
 
@@ -23,7 +24,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
                 _wrapper = wrapper;
             }
 
-            public override Task<object> Handle(SlackContext context) => context.RenderHomePage(context);
+            public override Task<object> Handle(SlackContext context) => _wrapper.RenderHomePage((AppHomeOpened)context.Event);
         }
     }
 }

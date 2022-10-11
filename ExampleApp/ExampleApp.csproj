@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Slack.NetStandard.Annotations\Slack.NetStandard.Annotations.csproj" OutputItemType="Analyzer" />
+  </ItemGroup>
+
 </Project>
