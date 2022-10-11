@@ -15,8 +15,38 @@ namespace Slack.NetStandard.Annotations
             var mapper = new ArgumentMapper();
             var eventHandler = method.ParameterList.Parameters.First();
             MapEventHandler(mapper, eventHandler);
-            MapCommon(mapper, method.ParameterList.Parameters.Skip(1));
+            foreach (var param in method.ParameterList.Parameters.Skip(1))
+            {
+                MapCommon(mapper, param);
+            }
+            
             return mapper;
+        }
+
+        public static ArgumentMapper ForSlashCommand(MethodDeclarationSyntax method)
+        {
+            var mapper = new ArgumentMapper();
+            foreach (var param in method.ParameterList.Parameters)
+            {
+                if (TypeName(param) == Strings.Types.SlashCommand)
+                {
+                    mapper.AddArgument(SF.IdentifierName(Strings.Names.CommandParameter));
+                }
+                else
+                {
+                    MapCommon(mapper, param);
+                }
+            }
+            return mapper;
+        }
+
+        private static void MapCommon(ArgumentMapper mapper, ParameterSyntax parameter)
+        {
+            var type = TypeName(parameter);
+            if (type == Strings.Types.SlackContext)
+            {
+                mapper.AddArgument(SF.IdentifierName(Strings.Names.ContextParameter));
+            }
         }
 
         private static void MapEventHandler(ArgumentMapper mapper, ParameterSyntax eventHandler)
@@ -30,10 +60,13 @@ namespace Slack.NetStandard.Annotations
             Arguments.Add(new ArgumentDetail(expression));
         }
 
-        private static void MapCommon(ArgumentMapper mapper, IEnumerable<ParameterSyntax> parameters)
+        private static string? TypeName(ParameterSyntax parameter) => parameter.Type switch
         {
-
-        }
+            IdentifierNameSyntax id => id.Identifier.Text,
+            PredefinedTypeSyntax predef => predef.Keyword.Text,
+            GenericNameSyntax generic => generic.Identifier.Text,
+            _ => parameter.Type?.ToString()
+        };
     }
 
     internal class ArgumentDetail

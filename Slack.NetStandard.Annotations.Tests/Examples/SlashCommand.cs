@@ -1,5 +1,6 @@
 ﻿using Slack.NetStandard.Annotations.Markers;
 using Slack.NetStandard.Interaction;
+using Slack.NetStandard.RequestHandler;
 
 namespace Slack.NetStandard.Annotations.Tests.Examples
 {
@@ -13,7 +14,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         }
 
         [RespondsToSlashCommand("test2")]
-        public Task<object> SlashCommand2(SlashCommand evt)
+        public Task<object> SlashCommand2(SlashCommand evt, SlackContext context)
         {
             return Task.FromResult((object)null!);
         }

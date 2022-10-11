@@ -91,7 +91,7 @@ public static class HandlerBuilder
                     SF.Parameter(SF.Identifier(Strings.Names.CommandParameter)).WithType(SF.IdentifierName(Strings.Types.SlashCommand)),
                     SF.Parameter(SF.Identifier(Strings.Names.ContextParameter)).WithType(SF.IdentifierName(Strings.Types.SlackContext))})));
 
-        var mapper = ArgumentMapper.ForEventHandler(method);
+        var mapper = ArgumentMapper.ForSlashCommand(method);
 
         return handlerClass.AddMembers(AddWrapperCall(newMethod, mapper, method.Identifier.Text));
     }
