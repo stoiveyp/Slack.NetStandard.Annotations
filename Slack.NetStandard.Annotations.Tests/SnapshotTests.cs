@@ -16,5 +16,12 @@ namespace Slack.NetStandard.Annotations.Tests
             var sampleCode = System.IO.File.ReadAllText("Examples/SlashCommand.cs");
             return Utility.Verify(sampleCode);
         }
+
+        [Fact]
+        public Task InteractionPayload()
+        {
+            var sampleCode = System.IO.File.ReadAllText("Examples/InteractionPayload.cs");
+            return Utility.Verify(sampleCode);
+        }
     }
 }

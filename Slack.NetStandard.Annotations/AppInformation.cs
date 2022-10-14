@@ -46,6 +46,14 @@ public class AppInformation
                         SF.ObjectCreationExpression(SF.IdentifierName(h.Identifier.Text)).WithArgumentList(
                             SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(SF.ThisExpression()))))).ToArray()));
             }
+
+            if (grouping.Key == nameof(RespondsToInteractionAttribute).NameOnly())
+            {
+                argumentList.Add(GroupedIfMultiple(SCCheck(Strings.Names.InteractionProperty),
+                    grouping.Select(h =>
+                        SF.ObjectCreationExpression(SF.IdentifierName(h.Identifier.Text)).WithArgumentList(
+                            SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(SF.ThisExpression()))))).ToArray()));
+            }
         }
 
         return SF.Argument(

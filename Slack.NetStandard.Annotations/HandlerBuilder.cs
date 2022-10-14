@@ -2,7 +2,6 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Slack.NetStandard.Annotations.Markers;
-using System.Diagnostics.Tracing;
 
 namespace Slack.NetStandard.Annotations;
 
@@ -29,7 +28,7 @@ public static class HandlerBuilder
             buildInfo.BaseType =
                 SF.SimpleBaseType(
                     Strings.Types.SlackEventHandler(method.ParameterList.Parameters.First().Type!));
-            buildInfo.ExecuteMethod = EventHandlerExecute;
+            buildInfo.ExecuteMethod = (h, m) => FirstParameterHandlerExecute(h, m, Strings.Names.EventProperty);
         }
         else if (marker!.MarkerName() == nameof(RespondsToSlashCommandAttribute).NameOnly())
         {
@@ -40,13 +39,21 @@ public static class HandlerBuilder
                     SF.SingletonSeparatedList(SF.Argument(marker.ArgumentList!.Arguments.First().Expression))));
             buildInfo.ExecuteMethod = SlashCommandExecute;
         }
+        else if (marker!.MarkerName() == nameof(RespondsToInteractionAttribute).NameOnly())
+        {
+            buildInfo.BaseType =
+                SF.SimpleBaseType(Strings.Types.SlackPayloadHandler(method.ParameterList.Parameters.First().Type!));
+            buildInfo.ExecuteMethod = (h, m) => FirstParameterHandlerExecute(h, m, Strings.Names.InteractionProperty);
+            //TODO: fill in the initializer? and execute method
+        }
 
         return buildInfo;
     }
 
     private static readonly string[] ValidMarkers = {
         nameof(RespondsToEventAttribute).NameOnly(),
-        nameof(RespondsToSlashCommandAttribute).NameOnly()
+        nameof(RespondsToSlashCommandAttribute).NameOnly(),
+        nameof(RespondsToInteractionAttribute).NameOnly()
     };
 
     internal static bool TryGetAttributeName(this MethodDeclarationSyntax method, out AttributeSyntax? marker)
@@ -96,8 +103,8 @@ public static class HandlerBuilder
         return handlerClass.AddMembers(AddWrapperCall(newMethod, mapper, method.Identifier.Text));
     }
 
-    private static ClassDeclarationSyntax EventHandlerExecute(ClassDeclarationSyntax handlerClass,
-        MethodDeclarationSyntax method)
+    private static ClassDeclarationSyntax FirstParameterHandlerExecute(ClassDeclarationSyntax handlerClass,
+        MethodDeclarationSyntax method, string contextProperty)
     {
         var returnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
             SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(Strings.Types.Object))));
@@ -107,7 +114,7 @@ public static class HandlerBuilder
             .WithParameterList(
                 SF.ParameterList(SF.SingletonSeparatedList(SF.Parameter(SF.Identifier(Strings.Names.ContextParameter)).WithType(SF.IdentifierName(Strings.Types.SlackContext)))));
 
-        var mapper = ArgumentMapper.ForEventHandler(method);
+        var mapper = ArgumentMapper.MapFirstHandler(method, contextProperty);
 
         return handlerClass.AddMembers(AddWrapperCall(newMethod, mapper, method.Identifier.Text));
     }

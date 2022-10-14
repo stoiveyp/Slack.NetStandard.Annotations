@@ -10,11 +10,15 @@
 
 	<ItemGroup>
 	  <Compile Remove="Examples\EventHandler.cs" />
+	  <Compile Remove="Examples\InteractionPayload.cs" />
 	  <Compile Remove="Examples\SlashCommand.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <None Include="Examples\EventHandler.cs">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="Examples\InteractionPayload.cs">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	  <None Include="Examples\SlashCommand.cs">
