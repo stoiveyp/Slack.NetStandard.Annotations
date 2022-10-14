@@ -10,11 +10,11 @@ namespace Slack.NetStandard.Annotations
         public List<ArgumentDetail> Arguments = new ();
         public bool InlineOnly => !CommonStatements.Any() && Arguments.All(p => p.Inline);
 
-        public static ArgumentMapper ForEventHandler(MethodDeclarationSyntax method)
+        public static ArgumentMapper MapFirstHandler(MethodDeclarationSyntax method, string contextParameter)
         {
             var mapper = new ArgumentMapper();
             var eventHandler = method.ParameterList.Parameters.First();
-            MapEventHandler(mapper, eventHandler);
+            MapFirstHandler(mapper, eventHandler, contextParameter);
             foreach (var param in method.ParameterList.Parameters.Skip(1))
             {
                 MapCommon(mapper, param);
@@ -49,10 +49,10 @@ namespace Slack.NetStandard.Annotations
             }
         }
 
-        private static void MapEventHandler(ArgumentMapper mapper, ParameterSyntax eventHandler)
+        private static void MapFirstHandler(ArgumentMapper mapper, ParameterSyntax eventHandler, string contextProperty)
         {
             mapper.AddArgument(SF.CastExpression(eventHandler.Type!, SF.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                SF.IdentifierName(Strings.Names.ContextParameter), SF.IdentifierName(Strings.Names.EventProperty))));
+                SF.IdentifierName(Strings.Names.ContextParameter), SF.IdentifierName(contextProperty))));
         }
 
         private void AddArgument(ExpressionSyntax expression)

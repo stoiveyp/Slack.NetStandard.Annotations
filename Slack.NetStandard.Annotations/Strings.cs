@@ -25,6 +25,7 @@ namespace Slack.NetStandard.Annotations
             public const string CommandProperty = "Command";
             public const string HandleCommandMethodName = "HandleCommand";
             public const string CommandParameter = "slashCommand";
+            public const string InteractionProperty = "Interaction";
         }
 
         public static class Usings
@@ -42,6 +43,7 @@ namespace Slack.NetStandard.Annotations
             public const string RequestHandlerInterface = "ISlackRequestHandler";
             public const string EventHandler = "SlackEventHandler";
             public const string CommandHandler = "SlashCommandHandler";
+            public const string PayloadHandler = "SlackPayloadHandler";
             public const string Object = "object";
             public const string Task = nameof(Task);
             public const string SlackContext = nameof(SlackContext);
@@ -57,6 +59,9 @@ namespace Slack.NetStandard.Annotations
 
             public static GenericNameSyntax SlashCommandHandler() => SF.GenericName(CommandHandler)
             .WithTypeArgumentList(SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(Object))));
+
+            public static GenericNameSyntax SlackPayloadHandler(TypeSyntax type) => SF.GenericName(PayloadHandler)
+                .WithTypeArgumentList(SF.TypeArgumentList(SF.SeparatedList(new[] { type, SF.IdentifierName(Object) })));
         }
     }
 }
