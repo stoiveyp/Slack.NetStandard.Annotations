@@ -31,7 +31,7 @@ public static class PipelineBuilder
         {
             return initialSetup.AddMembers(SF.NamespaceDeclaration(nsName).AddMembers(appClass));
         }
-        
+
         return initialSetup.AddMembers(appClass);
     }
 
@@ -42,7 +42,61 @@ public static class PipelineBuilder
 
         return appClass
             .AddPipelineField()
-            .PipelineInitialization(info);
+            .PipelineInitialization(info)
+            .AddExecuteMethods();
+    }
+
+    public static ClassDeclarationSyntax AddExecuteMethods(this ClassDeclarationSyntax appClass)
+    {
+        MethodDeclarationSyntax ExecuteBase(string parameterName, string parameterType) => SF
+            .MethodDeclaration(Strings.Types.TaskOf(Strings.Types.Object), Strings.Names.ExecuteMethod)
+            .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword)))
+            .WithParameterList(SF.ParameterList(SF.SingletonSeparatedList(SF
+                .Parameter(SF.Identifier(parameterName))
+                .WithType(SF.IdentifierName(parameterType)))));
+
+        MethodDeclarationSyntax ContextFromSingleParameter(MethodDeclarationSyntax method)
+        {
+            var informationFromEvent = SF.ObjectCreationExpression(SF.IdentifierName(Strings.Types.SlackInformation))
+                .WithArgumentList(SF.ArgumentList(
+                    SF.SingletonSeparatedList(SF.Argument(SF.IdentifierName(method.ParameterList.Parameters.First().Identifier)))));
+
+            var contextFromInformation = SF.ObjectCreationExpression(SF.IdentifierName(Strings.Types.SlackContext))
+                .WithArgumentList(SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(informationFromEvent))));
+
+            return method.WithExpressionBody(SF.ArrowExpressionClause(
+                SF.InvocationExpression(SF.IdentifierName(Strings.Names.ExecuteMethod))
+                    .WithArgumentList(SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(contextFromInformation))))))
+                .WithSemicolonToken(SF.Token(SyntaxKind.SemicolonToken));
+        }
+
+        var executeMethod = ExecuteBase(Strings.Names.ContextParameter, Strings.Types.SlackContext)
+            .WithExpressionBody(SF.ArrowExpressionClause(
+                SF.InvocationExpression(
+                        SF.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                            SF.IdentifierName(Strings.Names.PipelineField),
+                            SF.IdentifierName(Strings.Names.ProcessMethodName)))
+                    .WithArgumentList(SF.ArgumentList(
+                        SF.SingletonSeparatedList(SF.Argument(SF.IdentifierName(Strings.Names.ContextParameter)))))))
+            .WithSemicolonToken(SF.Token(SyntaxKind.SemicolonToken));
+
+        var envelopeMethod = ExecuteBase(Strings.Names.EnvelopeParameter, Strings.Types.Envelope)
+            .WithExpressionBody(SF.ArrowExpressionClause(
+                SF.InvocationExpression(
+                        SF.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                            SF.IdentifierName(Strings.Names.PipelineField),
+                            SF.IdentifierName(Strings.Names.ProcessMethodName)))
+                    .WithArgumentList(SF.ArgumentList(
+                        SF.SingletonSeparatedList(SF.Argument(SF.IdentifierName(Strings.Names.EnvelopeParameter)))))))
+            .WithSemicolonToken(SF.Token(SyntaxKind.SemicolonToken));
+
+        var executeFromEvent = ContextFromSingleParameter(ExecuteBase(Strings.Names.EventParameter, Strings.Types.SlackEvent));
+        var executeFromInteraction = ContextFromSingleParameter(ExecuteBase(Strings.Names.PayloadParameter, Strings.Types.InteractionPayload));
+        var executeFromSlashCommand =
+            ContextFromSingleParameter(ExecuteBase(Strings.Names.CommandParameter, Strings.Types.SlashCommand));
+
+
+        return appClass.AddMembers(executeMethod, envelopeMethod, executeFromEvent, executeFromInteraction, executeFromSlashCommand);
     }
 
     public static ClassDeclarationSyntax PipelineInitialization(this ClassDeclarationSyntax appClass,

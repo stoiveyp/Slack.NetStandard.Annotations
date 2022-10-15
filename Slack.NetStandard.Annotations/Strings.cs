@@ -26,6 +26,11 @@ namespace Slack.NetStandard.Annotations
             public const string HandleCommandMethodName = "HandleCommand";
             public const string CommandParameter = "slashCommand";
             public const string InteractionProperty = "Interaction";
+            public const string EventParameter = "@event";
+            public const string ExecuteMethod = "Execute";
+            public const string PayloadParameter = "InteractionPayload";
+            public const string ProcessMethodName = "Process";
+            public const string EnvelopeParameter = "envelope";
         }
 
         public static class Usings
@@ -49,6 +54,10 @@ namespace Slack.NetStandard.Annotations
             public const string SlackContext = nameof(SlackContext);
             public const string GroupedHandler = "GroupedRequestHandler";
             public const string SlashCommand = "SlashCommand";
+            public const string SlackEvent = "Slack.NetStandard.EventsApi.Event";
+            public const string SlackInformation = "SlackInformation";
+            public const string InteractionPayload = nameof(InteractionPayload);
+            public const string Envelope = nameof(Socket.Envelope);
 
             public static GenericNameSyntax RequestHandlerWith(IdentifierNameSyntax? syntax = null) => SF
                 .GenericName(RequestHandlerInterface).WithTypeArgumentList(
@@ -62,6 +71,12 @@ namespace Slack.NetStandard.Annotations
 
             public static GenericNameSyntax SlackPayloadHandler(TypeSyntax type) => SF.GenericName(PayloadHandler)
                 .WithTypeArgumentList(SF.TypeArgumentList(SF.SeparatedList(new[] { type, SF.IdentifierName(Object) })));
+
+            public static GenericNameSyntax TaskOf(string type)
+            {
+                return SF.GenericName(Task).WithTypeArgumentList(
+                    SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(type))));
+            }
         }
     }
 }
