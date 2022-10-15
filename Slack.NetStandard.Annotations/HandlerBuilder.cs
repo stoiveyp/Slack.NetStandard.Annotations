@@ -44,7 +44,6 @@ public static class HandlerBuilder
             buildInfo.BaseType =
                 SF.SimpleBaseType(Strings.Types.SlackPayloadHandler(method.ParameterList.Parameters.First().Type!));
             buildInfo.ExecuteMethod = (h, m) => FirstParameterHandlerExecute(h, m, Strings.Names.InteractionProperty);
-            //TODO: fill in the initializer? and execute method
         }
 
         return buildInfo;
