@@ -16,5 +16,11 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         {
             
         }
+
+        [RespondsToEvent<UrlVerification>]
+        public object RespondToUrlVerification(UrlVerification urlVerification)
+        {
+
+        }
     }
 }
