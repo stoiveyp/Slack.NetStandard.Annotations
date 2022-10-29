@@ -71,7 +71,7 @@ namespace Slack.NetStandard.Annotations
 
         private static string? TypeName(ParameterSyntax parameter) => TypeName(parameter.Type);
 
-        private static string? TypeName(TypeSyntax? type) => type switch
+        public static string? TypeName(TypeSyntax? type) => type switch
         {
             IdentifierNameSyntax id => id.Identifier.Text,
             PredefinedTypeSyntax predef => predef.Keyword.Text,

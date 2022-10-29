@@ -19,7 +19,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         {
             private Example _wrapper { get; }
 
-            internal ViewSubmissionPayloadHandler(Example wrapper)
+            internal ViewSubmissionPayloadHandler(Example wrapper) : base(sc => sc.Interaction is ViewSubmissionPayload tmp && tmp.View.CallbackId == "callbackID")
             {
                 _wrapper = wrapper;
             }
@@ -31,7 +31,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         {
             private Example _wrapper { get; }
 
-            internal BlockActionPayloadResponseHandler(Example wrapper)
+            internal BlockActionPayloadResponseHandler(Example wrapper) : base(sc => sc.Interaction is BlockActionsPayload tmp && tmp.Actions[0].ActionId == "actionId")
             {
                 _wrapper = wrapper;
             }
@@ -55,7 +55,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         {
             private Example _wrapper { get; }
 
-            internal GlobalPayloadHandler(Example wrapper)
+            internal GlobalPayloadHandler(Example wrapper) : base(sc => sc.Interaction is GlobalShortcutPayload tmp && tmp.CallbackId == "globalShortcutCallback")
             {
                 _wrapper = wrapper;
             }

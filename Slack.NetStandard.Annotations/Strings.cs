@@ -31,6 +31,11 @@ namespace Slack.NetStandard.Annotations
             public const string PayloadParameter = "InteractionPayload";
             public const string ProcessMethodName = "Process";
             public const string EnvelopeParameter = "envelope";
+            public const string TmpProperty = "tmp";
+            public const string ViewProperty = "View";
+            public const string CallbackIdProperty = "CallbackId";
+            public const string ActionId = "ActionId";
+            public const string Actions = "Actions";
         }
 
         public static class Usings
@@ -58,6 +63,10 @@ namespace Slack.NetStandard.Annotations
             public const string SlackInformation = "SlackInformation";
             public const string InteractionPayload = nameof(InteractionPayload);
             public const string Envelope = nameof(Socket.Envelope);
+            public const string ViewSubmissionPayload = nameof(ViewSubmissionPayload);
+            public const string BlockActionsPayload = nameof(BlockActionsPayload);
+            public const string ShortcutPayload = nameof(ShortcutPayload);
+            public const string GlobalShortcutPayload = nameof(GlobalShortcutPayload);
 
             public static GenericNameSyntax RequestHandlerWith(IdentifierNameSyntax? syntax = null) => SF
                 .GenericName(RequestHandlerInterface).WithTypeArgumentList(
