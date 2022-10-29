@@ -8,6 +8,9 @@ namespace Slack.NetStandard.Annotations.Markers
 {
     public class RespondsToEventAttribute:Attribute
     {
-        
+        public RespondsToEventAttribute(Type eventType)
+        {
+            
+        }
     }
 }

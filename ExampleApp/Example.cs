@@ -8,7 +8,7 @@ namespace ExampleApp
     [SlackApp]
     public partial class Example
     {
-        [RespondsToEvent]
+        [RespondsToEvent(typeof(AppHomeOpened))]
         public async Task<object> GenerateHome(AppHomeOpened appHome)
         {
             return Task.FromResult((object)null!);

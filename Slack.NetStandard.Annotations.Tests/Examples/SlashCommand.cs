@@ -18,5 +18,14 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         {
             return Task.FromResult((object)null!);
         }
+
+        internal static TestCmd(SlackContext cxt) => true;
+
+        [RespondsToSlashCommand()]
+        [SlackMatches("TestCmd")]
+        public Task<object> SlashCommand3(SlashCommand evt, SlackContext context)
+        {
+            return Task.FromResult((object)null!);
+        }
     }
 }

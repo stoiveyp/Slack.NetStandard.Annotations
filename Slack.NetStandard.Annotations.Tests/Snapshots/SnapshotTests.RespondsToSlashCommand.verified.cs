@@ -12,7 +12,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         private SlackPipeline<object> _pipeline;
         public void Initialize()
         {
-            _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new GroupedRequestHandler<object>((sc) => sc.Command != null, new SlashCommandHandler(this), new SlashCommand2Handler(this))});
+            _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new GroupedRequestHandler<object>((sc) => sc.Command != null, new SlashCommandHandler(this), new SlashCommand2Handler(this), new SlashCommand3Handler(this))});
         }
 
         private class SlashCommandHandler : SlashCommandHandler<object>
@@ -37,6 +37,18 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
             }
 
             public override Task<object> HandleCommand(SlashCommand slashCommand, SlackContext context) => _wrapper.SlashCommand2(slashCommand, context);
+        }
+
+        private class SlashCommand3Handler : SlashCommandHandler<object>
+        {
+            private Example _wrapper { get; }
+
+            internal SlashCommand3Handler(Example wrapper) : base(Example.TestCmd)
+            {
+                _wrapper = wrapper;
+            }
+
+            public override Task<object> HandleCommand(SlashCommand slashCommand, SlackContext context) => _wrapper.SlashCommand3(slashCommand, context);
         }
 
         public Task<object> Execute(SlackContext context) => _pipeline.Process(context);

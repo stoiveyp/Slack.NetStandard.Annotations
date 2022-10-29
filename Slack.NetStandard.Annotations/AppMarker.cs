@@ -46,6 +46,6 @@ namespace Slack.NetStandard.Annotations
         }
 
         internal static string? MarkerName(this AttributeSyntax attribute) =>
-            attribute.Name is IdentifierNameSyntax id ? id.Identifier.Text : null;
+            attribute.Name is IdentifierNameSyntax id ? id.Identifier.Text : attribute.Name is GenericNameSyntax gen ? gen.Identifier.Text : null;
     }
 }

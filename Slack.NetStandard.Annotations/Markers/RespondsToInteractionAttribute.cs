@@ -1,12 +1,17 @@
-﻿namespace Slack.NetStandard.Annotations.Markers
+﻿using Slack.NetStandard.Interaction;
+
+namespace Slack.NetStandard.Annotations.Markers
 {
     public class RespondsToInteractionAttribute:Attribute
     {
-        public RespondsToInteractionAttribute(string identifier)
+        public RespondsToInteractionAttribute(Type type)
         {
-            Identifier = identifier;
+            
         }
 
-        public string Identifier { get; set; }
+        public RespondsToInteractionAttribute(Type type, string identifier)
+        {
+
+        }
     }
 }
