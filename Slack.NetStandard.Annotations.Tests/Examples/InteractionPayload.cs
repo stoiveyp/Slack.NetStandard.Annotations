@@ -8,33 +8,34 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
     [SlackApp]
     public partial class Example
     {
-        [RespondsToInteraction("callbackID")]
+        [RespondsToInteraction(typeof(ViewSubmissionPayload),"callbackID")]
         public object ViewSubmissionPayload(ViewSubmissionPayload payload)
         {
             //payload.View.CallbackId
             return null!;
         }
 
-        [RespondsToInteraction("actionId")]
+        [RespondsToInteraction(typeof(BlockActionsPayload), "actionId")]
         public object BlockActionPayloadResponse(BlockActionsPayload blocks)
         {
             //blocks.Actions[0].ActionId
             return null!;
         }
 
-        public static bool Test(InteractionPayload payload)
+        public static bool Test(SlackContext context)
         {
-            return payload is ShortcutPayload shortcut && shortcut.CallbackId == "shortcutCallback";
+            return context.Interaction is ShortcutPayload shortcut && shortcut.CallbackId == "shortcutCallback";
         }
 
-        [RespondsToInteraction(nameof(Test))]
+        [RespondsToInteraction(typeof(ShortcutPayload))]
+        [SlackMatches(nameof(Test))]
         public object ShortcutPayload()
         {
             //shortcut.CallbackId
             return null!;
         }
 
-        [RespondsToInteraction("globalShortcutCallback")]
+        [RespondsToInteraction(typeof(GlobalShortcutPayload),"globalShortcutCallback")]
         public object GlobalPayload(GlobalShortcutPayload globalPayload)
         {
             //globalPayload.CallbackId

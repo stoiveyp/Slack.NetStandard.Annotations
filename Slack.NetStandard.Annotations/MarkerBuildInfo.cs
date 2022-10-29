@@ -36,8 +36,8 @@ internal class MarkerBuildInfo
             .FirstOrDefault(a => a.MarkerName() == nameof(SlackMatchesAttribute).NameOnly());
 
         var typeCheckMethod = GetMethodNameFromTypeCheck(typeCheck);
-
-        if (marker.IsEventMarker())
+        
+        if (marker.IsEventMarker() || marker.IsInteractionMarker())
         {
             buildInfo.HandlerType = GetHandlerType(method, marker);
             if (buildInfo.HandlerType == null)
@@ -45,7 +45,8 @@ internal class MarkerBuildInfo
                 return false;
             }
 
-            buildInfo.BaseType = SF.SimpleBaseType(Strings.Types.SlackEventHandler(buildInfo.HandlerType!));
+            buildInfo.BaseType = SF.SimpleBaseType(marker.IsEventMarker() ? Strings.Types.SlackEventHandler(buildInfo.HandlerType!) : Strings.Types.SlackPayloadHandler(buildInfo.HandlerType!));
+
             if (typeCheckMethod != null)
             {
                 buildInfo.BaseInitializer = SF.ConstructorInitializer(SyntaxKind.BaseConstructorInitializer,
@@ -74,22 +75,6 @@ internal class MarkerBuildInfo
                 buildInfo.BaseInitializer = SF.ConstructorInitializer(SyntaxKind.BaseConstructorInitializer,
                     SF.ArgumentList(SF.SeparatedList(markers)));
             }
-        }
-        else if (marker.IsInteractionMarker())
-        {
-            if (buildInfo.HandlerType == null)
-            {
-                return false;
-            }
-
-            buildInfo.BaseType = SF.SimpleBaseType(Strings.Types.SlackEventHandler(buildInfo.HandlerType!));
-            if (typeCheckMethod != null)
-            {
-                buildInfo.BaseInitializer = SF.ConstructorInitializer(SyntaxKind.BaseConstructorInitializer,
-                    SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(SF.IdentifierName(typeCheckMethod)))));
-            }
-            TypeSyntax? handlerType = GetHandlerType(method, marker);
-            buildInfo.BaseType = SF.SimpleBaseType(Strings.Types.SlackPayloadHandler(handlerType!));
         }
 
         return true;

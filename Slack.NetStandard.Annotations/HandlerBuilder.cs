@@ -16,13 +16,10 @@ public static class HandlerBuilder
         foreach (var method in methods)
         {
             if (!method.TryGetAttributeName(out var marker)) continue;
-            var markerBuildInfo = MarkerBuildInfo.BuildFrom(originalClass,marker!, method, reportDiagnostic);
-            if (markerBuildInfo == null)
-            {
-                yield return (null, string.Empty);
-            }
-
-            yield return (Convert(method, markerBuildInfo!, originalClass, reportDiagnostic), marker!.MarkerName()!);
+            var markerBuildInfo = MarkerBuildInfo.BuildFrom(originalClass, marker!, method, reportDiagnostic);
+            yield return (markerBuildInfo == null)
+                    ? (null, string.Empty)
+                    : (Convert(method, markerBuildInfo!, originalClass, reportDiagnostic), marker!.MarkerName()!);
         }
     }
 
