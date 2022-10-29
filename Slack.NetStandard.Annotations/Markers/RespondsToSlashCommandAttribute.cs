@@ -1,6 +1,11 @@
-﻿namespace Slack.NetStandard.Annotations.Markers;
+﻿using Slack.NetStandard.Interaction;
+
+namespace Slack.NetStandard.Annotations.Markers;
 
 public class RespondsToSlashCommandAttribute : Attribute
 {
-    public RespondsToSlashCommandAttribute(string command){}
+    public RespondsToSlashCommandAttribute(string command)
+    {
+        
+    }
 }

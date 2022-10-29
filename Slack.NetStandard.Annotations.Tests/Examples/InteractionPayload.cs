@@ -22,8 +22,13 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
             return null!;
         }
 
-        [RespondsToInteraction("shortcutCallback")]
-        public object ShortcutPayload(ShortcutPayload shortcut)
+        public static bool Test(InteractionPayload payload)
+        {
+            return payload is ShortcutPayload shortcut && shortcut.CallbackId == "shortcutCallback";
+        }
+
+        [RespondsToInteraction(nameof(Test))]
+        public object ShortcutPayload()
         {
             //shortcut.CallbackId
             return null!;

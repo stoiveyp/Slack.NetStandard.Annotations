@@ -1,6 +1,7 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Array = System.Array;
+using System.Reflection.Metadata;
 
 namespace Slack.NetStandard.Annotations
 {
@@ -10,48 +11,56 @@ namespace Slack.NetStandard.Annotations
         public List<ArgumentDetail> Arguments = new ();
         public bool InlineOnly => !CommonStatements.Any() && Arguments.All(p => p.Inline);
 
-        public static ArgumentMapper MapFirstHandler(MethodDeclarationSyntax method, string contextParameter)
-        {
-            var mapper = new ArgumentMapper();
-            var eventHandler = method.ParameterList.Parameters.First();
-            MapFirstHandler(mapper, eventHandler, contextParameter);
-            foreach (var param in method.ParameterList.Parameters.Skip(1))
-            {
-                MapCommon(mapper, param);
-            }
-            
-            return mapper;
-        }
-
-        public static ArgumentMapper ForSlashCommand(MethodDeclarationSyntax method)
+        public static ArgumentMapper For(MethodDeclarationSyntax method, AttributeSyntax marker, MarkerBuildInfo info, Action<Diagnostic> reportDiagnostic)
         {
             var mapper = new ArgumentMapper();
             foreach (var param in method.ParameterList.Parameters)
             {
-                if (TypeName(param) == Strings.Types.SlashCommand)
+                var type = TypeName(param);
+                if (MapCommon(mapper, type))
                 {
-                    mapper.AddArgument(SF.IdentifierName(Strings.Names.CommandParameter));
+                    continue;
                 }
-                else
+
+                if (marker.IsEventMarker())
                 {
-                    MapCommon(mapper, param);
+                    if (type == TypeName(info.HandlerType))
+                    {
+                        MapContextProperty(mapper, param.Type,Strings.Names.EventProperty);
+                    }
+                }
+                else if(marker.IsSlashCommandMarker())
+                {
+                    if (TypeName(param) == Strings.Types.SlashCommand)
+                    {
+                        mapper.AddArgument(SF.IdentifierName(Strings.Names.CommandParameter));
+                    }
+                }
+                else if (marker.IsInteractionMarker())
+                {
+                    if (type == TypeName(info.HandlerType))
+                    {
+                        MapContextProperty(mapper, param.Type, Strings.Names.InteractionProperty);
+                    }
                 }
             }
             return mapper;
         }
 
-        private static void MapCommon(ArgumentMapper mapper, ParameterSyntax parameter)
+        private static bool MapCommon(ArgumentMapper mapper, string parameterType)
         {
-            var type = TypeName(parameter);
-            if (type == Strings.Types.SlackContext)
+            if(parameterType == Strings.Types.SlackContext)
             {
                 mapper.AddArgument(SF.IdentifierName(Strings.Names.ContextParameter));
+                return true;
             }
+
+            return false;
         }
 
-        private static void MapFirstHandler(ArgumentMapper mapper, ParameterSyntax eventHandler, string contextProperty)
+        private static void MapContextProperty(ArgumentMapper mapper, TypeSyntax type, string contextProperty)
         {
-            mapper.AddArgument(SF.CastExpression(eventHandler.Type!, SF.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+            mapper.AddArgument(SF.CastExpression(type, SF.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                 SF.IdentifierName(Strings.Names.ContextParameter), SF.IdentifierName(contextProperty))));
         }
 
@@ -60,12 +69,14 @@ namespace Slack.NetStandard.Annotations
             Arguments.Add(new ArgumentDetail(expression));
         }
 
-        private static string? TypeName(ParameterSyntax parameter) => parameter.Type switch
+        private static string? TypeName(ParameterSyntax parameter) => TypeName(parameter.Type);
+
+        private static string? TypeName(TypeSyntax? type) => type switch
         {
             IdentifierNameSyntax id => id.Identifier.Text,
             PredefinedTypeSyntax predef => predef.Keyword.Text,
             GenericNameSyntax generic => generic.Identifier.Text,
-            _ => parameter.Type?.ToString()
+            _ => type?.ToString()
         };
     }
 

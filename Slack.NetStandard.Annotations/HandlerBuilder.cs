@@ -2,12 +2,13 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Slack.NetStandard.Annotations.Markers;
+using Slack.NetStandard.Interaction;
 
 namespace Slack.NetStandard.Annotations;
 
 public static class HandlerBuilder
 {
-    public static IEnumerable<(ClassDeclarationSyntax Cls, string Marker)> ConvertTagged(this 
+    public static IEnumerable<(ClassDeclarationSyntax? Cls, string Marker)> ConvertTagged(this
         IEnumerable<MethodDeclarationSyntax> methods,
         ClassDeclarationSyntax originalClass,
         Action<Diagnostic> reportDiagnostic)
@@ -15,38 +16,14 @@ public static class HandlerBuilder
         foreach (var method in methods)
         {
             if (!method.TryGetAttributeName(out var marker)) continue;
-            var markerBuildInfo = GetMarkerBuildInfo(marker, method);
-                yield return (Convert(method, markerBuildInfo,originalClass, reportDiagnostic), marker!.MarkerName()!);
-        }
-    }
+            var markerBuildInfo = MarkerBuildInfo.BuildFrom(originalClass,marker!, method, reportDiagnostic);
+            if (markerBuildInfo == null)
+            {
+                yield return (null, string.Empty);
+            }
 
-    private static MarkerBuildInfo GetMarkerBuildInfo(AttributeSyntax marker, MethodDeclarationSyntax method)
-    {
-        MarkerBuildInfo buildInfo = new MarkerBuildInfo();
-        if (marker!.MarkerName() == nameof(RespondsToEventAttribute).NameOnly())
-        {
-            buildInfo.BaseType =
-                SF.SimpleBaseType(
-                    Strings.Types.SlackEventHandler(method.ParameterList.Parameters.First().Type!));
-            buildInfo.ExecuteMethod = (h, m) => FirstParameterHandlerExecute(h, m, Strings.Names.EventProperty);
+            yield return (Convert(method, markerBuildInfo!, originalClass, reportDiagnostic), marker!.MarkerName()!);
         }
-        else if (marker!.MarkerName() == nameof(RespondsToSlashCommandAttribute).NameOnly())
-        {
-            buildInfo.BaseType =
-                SF.SimpleBaseType(Strings.Types.SlashCommandHandler());
-            buildInfo.BaseInitializer = SF.ConstructorInitializer(SyntaxKind.BaseConstructorInitializer,
-                SF.ArgumentList(
-                    SF.SingletonSeparatedList(SF.Argument(marker.ArgumentList!.Arguments.First().Expression))));
-            buildInfo.ExecuteMethod = SlashCommandExecute;
-        }
-        else if (marker!.MarkerName() == nameof(RespondsToInteractionAttribute).NameOnly())
-        {
-            buildInfo.BaseType =
-                SF.SimpleBaseType(Strings.Types.SlackPayloadHandler(method.ParameterList.Parameters.First().Type!));
-            buildInfo.ExecuteMethod = (h, m) => FirstParameterHandlerExecute(h, m, Strings.Names.InteractionProperty);
-        }
-
-        return buildInfo;
     }
 
     private static readonly string[] ValidMarkers = {
@@ -59,7 +36,7 @@ public static class HandlerBuilder
     {
         var markerName = method.AttributeLists.SelectMany(a => a.Attributes)
             .FirstOrDefault(a => ValidMarkers.Contains(a.MarkerName()));
-        
+
         if (markerName == null)
         {
             marker = null;
@@ -70,73 +47,18 @@ public static class HandlerBuilder
         return true;
     }
 
-    internal static ClassDeclarationSyntax Convert(this MethodDeclarationSyntax method, 
+    internal static ClassDeclarationSyntax Convert(this MethodDeclarationSyntax method,
         MarkerBuildInfo info,
-        ClassDeclarationSyntax originalClass, 
+        ClassDeclarationSyntax originalClass,
         Action<Diagnostic> reportDiagnostic)
-    { 
+    {
         var handlerClass = SF.ClassDeclaration(method.Identifier.Text + Strings.Names.HandlerSuffix)
                 .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PrivateKeyword)))
                 .WithBaseList(SF.BaseList(
                     SF.SingletonSeparatedList(info.BaseType!)))
                 .AddWrapperField(originalClass)
                 .AddWrapperConstructor(originalClass, info.BaseInitializer);
-                return info.ExecuteMethod(handlerClass, method);
-    }
-
-    private static ClassDeclarationSyntax SlashCommandExecute(ClassDeclarationSyntax handlerClass,
-        MethodDeclarationSyntax method)
-    {
-        var returnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
-            SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(Strings.Types.Object))));
-
-        var newMethod = SF.MethodDeclaration(returnType, Strings.Names.HandleCommandMethodName)
-            .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword), SF.Token(SyntaxKind.OverrideKeyword)))
-            .WithParameterList(
-                SF.ParameterList(SF.SeparatedList(new []{
-                    SF.Parameter(SF.Identifier(Strings.Names.CommandParameter)).WithType(SF.IdentifierName(Strings.Types.SlashCommand)),
-                    SF.Parameter(SF.Identifier(Strings.Names.ContextParameter)).WithType(SF.IdentifierName(Strings.Types.SlackContext))})));
-
-        var mapper = ArgumentMapper.ForSlashCommand(method);
-
-        return handlerClass.AddMembers(AddWrapperCall(newMethod, mapper, method.Identifier.Text));
-    }
-
-    private static ClassDeclarationSyntax FirstParameterHandlerExecute(ClassDeclarationSyntax handlerClass,
-        MethodDeclarationSyntax method, string contextProperty)
-    {
-        var returnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
-            SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(Strings.Types.Object))));
-
-        var newMethod = SF.MethodDeclaration(returnType, Strings.Names.HandleMethodName)
-            .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword), SF.Token(SyntaxKind.OverrideKeyword)))
-            .WithParameterList(
-                SF.ParameterList(SF.SingletonSeparatedList(SF.Parameter(SF.Identifier(Strings.Names.ContextParameter)).WithType(SF.IdentifierName(Strings.Types.SlackContext)))));
-
-        var mapper = ArgumentMapper.MapFirstHandler(method, contextProperty);
-
-        return handlerClass.AddMembers(AddWrapperCall(newMethod, mapper, method.Identifier.Text));
-    }
-
-    private static MemberDeclarationSyntax AddWrapperCall(MethodDeclarationSyntax newMethod, ArgumentMapper mapper, string methodName)
-    {
-        var runWrapper = SF.InvocationExpression(SF.MemberAccessExpression(
-                SyntaxKind.SimpleMemberAccessExpression, SF.IdentifierName(Strings.Names.WrapperPropertyName),
-                SF.IdentifierName(methodName)),
-            SF.ArgumentList(SF.SeparatedList(mapper.Arguments.Select(a => a.Argument))));
-
-        if (mapper.InlineOnly)
-        {
-            newMethod = newMethod.WithExpressionBody(SF.ArrowExpressionClause(runWrapper)).WithSemicolonToken(SF.Token(SyntaxKind.SemicolonToken));
-        }
-        else
-        {
-            newMethod = newMethod.WithBody(SF.Block(mapper.CommonStatements
-                .Concat(mapper.Arguments.SelectMany(a => a.Statements)).Concat(new StatementSyntax[]
-                    { SF.ExpressionStatement(runWrapper) })));
-        }
-
-        return newMethod;
+        return info.ExecuteMethod(handlerClass, method, info);
     }
 
     private static ClassDeclarationSyntax AddWrapperConstructor(this ClassDeclarationSyntax handlerClass, ClassDeclarationSyntax wrapperClass, ConstructorInitializerSyntax? initializer)

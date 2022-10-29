@@ -12,7 +12,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         private SlackPipeline<object> _pipeline;
         public void Initialize()
         {
-            _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new RenderHomePageHandler(this)});
+            _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new GroupedRequestHandler<object>((sc) => sc.Event != null, new RenderHomePageHandler(this), new RespondToUrlVerificationHandler(this))});
         }
 
         private class RenderHomePageHandler : SlackEventHandler<AppHomeOpened, object>
@@ -25,6 +25,18 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
             }
 
             public override Task<object> Handle(SlackContext context) => _wrapper.RenderHomePage((AppHomeOpened)context.Event);
+        }
+
+        private class RespondToUrlVerificationHandler : SlackEventHandler<UrlVerification, object>
+        {
+            private Example _wrapper { get; }
+
+            internal RespondToUrlVerificationHandler(Example wrapper) : base(Example.Test)
+            {
+                _wrapper = wrapper;
+            }
+
+            public override Task<object> Handle(SlackContext context) => _wrapper.RespondToUrlVerification();
         }
 
         public Task<object> Execute(SlackContext context) => _pipeline.Process(context);
