@@ -174,7 +174,7 @@ internal class MarkerBuildInfo
                     SF.Parameter(SF.Identifier(Strings.Names.CommandParameter)).WithType(SF.IdentifierName(Strings.Types.SlashCommand)),
                     SF.Parameter(SF.Identifier(Strings.Names.ContextParameter)).WithType(SF.IdentifierName(Strings.Types.SlackContext))})));
 
-        return handlerClass.AddMembers(AddWrapperCall(newMethod, info.Arguments, method.Identifier.Text));
+        return handlerClass.AddMembers(AddWrapperCall(method, newMethod, info.Arguments, method.Identifier.Text));
     }
 
     private static ClassDeclarationSyntax SlackTypeHandlerExecute(ClassDeclarationSyntax handlerClass,
@@ -188,15 +188,22 @@ internal class MarkerBuildInfo
             .WithParameterList(
                 SF.ParameterList(SF.SingletonSeparatedList(SF.Parameter(SF.Identifier(Strings.Names.ContextParameter)).WithType(SF.IdentifierName(Strings.Types.SlackContext)))));
 
-        return handlerClass.AddMembers(AddWrapperCall(newMethod, info.Arguments, method.Identifier.Text));
+        return handlerClass.AddMembers(AddWrapperCall(method, newMethod, info.Arguments, method.Identifier.Text));
     }
 
-    private static MemberDeclarationSyntax AddWrapperCall(MethodDeclarationSyntax newMethod, ArgumentMapper mapper, string methodName)
+    private static MemberDeclarationSyntax AddWrapperCall(MethodDeclarationSyntax method, MethodDeclarationSyntax newMethod, ArgumentMapper mapper, string methodName)
     {
         var runWrapper = SF.InvocationExpression(SF.MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression, SF.IdentifierName(Strings.Names.WrapperPropertyName),
                 SF.IdentifierName(methodName)),
             SF.ArgumentList(SF.SeparatedList(mapper.Arguments.Select(a => a.Argument))));
+
+        if (ArgumentMapper.TypeName(method.ReturnType) != Strings.Types.Task)
+        {
+            runWrapper = SF.InvocationExpression(SF.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                    SF.IdentifierName(Strings.Types.Task), SF.IdentifierName(Strings.Names.FromResultMethod)))
+                .WithArgumentList(SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(runWrapper))));
+        }
 
         if (mapper.InlineOnly)
         {

@@ -22,7 +22,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
 
         [RespondsToEvent(typeof(UrlVerification))]
         [SlackMatches(nameof(Test))]
-        public object RespondToUrlVerification()
+        public Task<object> RespondToUrlVerification()
         {
 
         }

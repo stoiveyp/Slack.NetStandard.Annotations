@@ -9,14 +9,14 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
     public partial class Example
     {
         [RespondsToInteraction(typeof(ViewSubmissionPayload),"callbackID")]
-        public object ViewSubmissionPayload(ViewSubmissionPayload payload)
+        public async Task<object> ViewSubmissionPayload(ViewSubmissionPayload payload)
         {
             //payload.View.CallbackId
             return null!;
         }
 
         [RespondsToInteraction(typeof(BlockActionsPayload), "actionId")]
-        public object BlockActionPayloadResponse(BlockActionsPayload blocks)
+        public async Task<object> BlockActionPayloadResponse(BlockActionsPayload blocks)
         {
             //blocks.Actions[0].ActionId
             return null!;
@@ -36,7 +36,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
         }
 
         [RespondsToInteraction(typeof(GlobalShortcutPayload),"globalShortcutCallback")]
-        public object GlobalPayload(GlobalShortcutPayload globalPayload)
+        public Task<object> GlobalPayload(GlobalShortcutPayload globalPayload)
         {
             //globalPayload.CallbackId
             return null!;

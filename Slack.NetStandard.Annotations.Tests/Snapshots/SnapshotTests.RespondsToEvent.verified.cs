@@ -24,7 +24,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
                 _wrapper = wrapper;
             }
 
-            public override Task<object> Handle(SlackContext context) => _wrapper.RenderHomePage((AppHomeOpened)context.Event);
+            public override Task<object> Handle(SlackContext context) => Task.FromResult(_wrapper.RenderHomePage((AppHomeOpened)context.Event));
         }
 
         private class RespondToUrlVerificationHandler : SlackEventHandler<UrlVerification, object>
