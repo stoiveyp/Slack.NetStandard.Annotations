@@ -48,7 +48,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
                 _wrapper = wrapper;
             }
 
-            public override Task<object> Handle(SlackContext context) => _wrapper.ShortcutPayload();
+            public override Task<object> Handle(SlackContext context) => Task.FromResult(_wrapper.ShortcutPayload());
         }
 
         private class GlobalPayloadHandler : SlackPayloadHandler<GlobalShortcutPayload, object>

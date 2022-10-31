@@ -36,6 +36,7 @@ namespace Slack.NetStandard.Annotations
             public const string CallbackIdProperty = "CallbackId";
             public const string ActionId = "ActionId";
             public const string Actions = "Actions";
+            public const string FromResultMethod = "FromResult";
         }
 
         public static class Usings

@@ -20,7 +20,7 @@ namespace ExampleApp
             return null!;
         }
 
-        [RespondsToSlashCommand("command")]
+        [RespondsToSlashCommand("command2")]
         public async Task<object> ExampleAsyncCommand(SlashCommand command)
         {
             return Task.FromResult((object)null!);
