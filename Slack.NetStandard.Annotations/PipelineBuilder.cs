@@ -41,15 +41,15 @@ public static class PipelineBuilder
         var info = AppInformation.GenerateFrom(originalClass, reportDiagnostic);
 
         return appClass
-            .AddPipelineField()
+            .AddPipelineField(info.ReturnType)
             .PipelineInitialization(info)
-            .AddExecuteMethods();
+            .AddExecuteMethods(info.ReturnType);
     }
 
-    public static ClassDeclarationSyntax AddExecuteMethods(this ClassDeclarationSyntax appClass)
+    public static ClassDeclarationSyntax AddExecuteMethods(this ClassDeclarationSyntax appClass, TypeSyntax returnType)
     {
         MethodDeclarationSyntax ExecuteBase(string parameterName, string parameterType) => SF
-            .MethodDeclaration(Strings.Types.TaskOf(Strings.Types.Object), Strings.Names.ExecuteMethod)
+            .MethodDeclaration(Strings.Types.TaskOf(returnType), Strings.Names.ExecuteMethod)
             .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword)))
             .WithParameterList(SF.ParameterList(SF.SingletonSeparatedList(SF
                 .Parameter(SF.Identifier(parameterName))
@@ -102,9 +102,9 @@ public static class PipelineBuilder
     public static ClassDeclarationSyntax PipelineInitialization(this ClassDeclarationSyntax appClass,
         AppInformation information)
     {
-        var argumentList = new List<ArgumentSyntax> { information.PipelineHandlerArray() };
+        var argumentList = new List<ArgumentSyntax> { information.PipelineHandlerArray(information.ReturnType) };
 
-        var newPipeline = SF.ObjectCreationExpression(PipelineType())
+        var newPipeline = SF.ObjectCreationExpression(PipelineType(information.ReturnType))
             .WithArgumentList(SF.ArgumentList(SF.SeparatedList(argumentList)));
 
         var initializeMethod =
@@ -116,20 +116,18 @@ public static class PipelineBuilder
         return appClass.AddMembers(initializeMethod).AddMembers(information.Handlers.SelectMany(g => g).ToArray());
     }
 
-    public static ClassDeclarationSyntax AddPipelineField(this ClassDeclarationSyntax appClass)
+    public static ClassDeclarationSyntax AddPipelineField(this ClassDeclarationSyntax appClass, TypeSyntax returnType)
     {
-        var field = SF.FieldDeclaration(SF.VariableDeclaration(PipelineType()))
+        var field = SF.FieldDeclaration(SF.VariableDeclaration(PipelineType(returnType)))
             .AddDeclarationVariables(SF.VariableDeclarator(Strings.Names.PipelineField))
             .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PrivateKeyword)));
         return appClass.AddMembers(field);
     }
 
-    //new SlackPipeline<object>
-
-    private static TypeSyntax PipelineType(string requestType = Strings.Types.Object)
+    private static TypeSyntax PipelineType(TypeSyntax requestType)
     {
         return SF
             .GenericName(SF.Identifier(Strings.Types.PipelineClass)).WithTypeArgumentList(
-                SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(requestType))));
+                SF.TypeArgumentList(SF.SingletonSeparatedList(requestType)));
     }
 }

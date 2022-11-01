@@ -9,7 +9,7 @@ internal class MarkerBuildInfo
 {
     public BaseTypeSyntax? BaseType { get; set; }
     public ConstructorInitializerSyntax? BaseInitializer { get; set; }
-    public Func<ClassDeclarationSyntax, MethodDeclarationSyntax, MarkerBuildInfo, ClassDeclarationSyntax> ExecuteMethod { get; set; }
+    public Func<ClassDeclarationSyntax, MethodDeclarationSyntax, MarkerBuildInfo, TypeSyntax, ClassDeclarationSyntax> ExecuteMethod { get; set; }
     public TypeSyntax? HandlerType { get; set; }
     public ArgumentMapper Arguments { get; set; }
 
@@ -26,7 +26,7 @@ internal class MarkerBuildInfo
         return buildInfo;
     }
 
-    private static Func<ClassDeclarationSyntax, MethodDeclarationSyntax, MarkerBuildInfo, ClassDeclarationSyntax>
+    private static Func<ClassDeclarationSyntax, MethodDeclarationSyntax, MarkerBuildInfo, TypeSyntax, ClassDeclarationSyntax>
         SelectExecute(AttributeSyntax marker)
         => marker.IsSlashCommandMarker() ? SlashCommandExecute : SlackTypeHandlerExecute;
 
@@ -162,12 +162,12 @@ internal class MarkerBuildInfo
     }
 
     private static ClassDeclarationSyntax SlashCommandExecute(ClassDeclarationSyntax handlerClass,
-        MethodDeclarationSyntax method, MarkerBuildInfo info)
+        MethodDeclarationSyntax method, MarkerBuildInfo info, TypeSyntax returnType)
     {
-        var returnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
-            SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(Strings.Types.Object))));
+        var genericReturnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
+            SF.TypeArgumentList(SF.SingletonSeparatedList(returnType)));
 
-        var newMethod = SF.MethodDeclaration(returnType, Strings.Names.HandleCommandMethodName)
+        var newMethod = SF.MethodDeclaration(genericReturnType, Strings.Names.HandleCommandMethodName)
             .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword), SF.Token(SyntaxKind.OverrideKeyword)))
             .WithParameterList(
                 SF.ParameterList(SF.SeparatedList(new[]{
@@ -178,12 +178,12 @@ internal class MarkerBuildInfo
     }
 
     private static ClassDeclarationSyntax SlackTypeHandlerExecute(ClassDeclarationSyntax handlerClass,
-        MethodDeclarationSyntax method, MarkerBuildInfo info)
+        MethodDeclarationSyntax method, MarkerBuildInfo info, TypeSyntax returnType)
     {
-        var returnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
-            SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(Strings.Types.Object))));
+        var genericReturnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
+            SF.TypeArgumentList(SF.SingletonSeparatedList(returnType)));
 
-        var newMethod = SF.MethodDeclaration(returnType, Strings.Names.HandleMethodName)
+        var newMethod = SF.MethodDeclaration(genericReturnType, Strings.Names.HandleMethodName)
             .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword), SF.Token(SyntaxKind.OverrideKeyword)))
             .WithParameterList(
                 SF.ParameterList(SF.SingletonSeparatedList(SF.Parameter(SF.Identifier(Strings.Names.ContextParameter)).WithType(SF.IdentifierName(Strings.Types.SlackContext)))));

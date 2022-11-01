@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Reflection.Metadata.Ecma335;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Slack.NetStandard.Annotations.Markers;
@@ -11,6 +12,7 @@ public static class HandlerBuilder
     public static IEnumerable<(ClassDeclarationSyntax? Cls, string Marker)> ConvertTagged(this
         IEnumerable<MethodDeclarationSyntax> methods,
         ClassDeclarationSyntax originalClass,
+        TypeSyntax returnType,
         Action<Diagnostic> reportDiagnostic)
     {
         foreach (var method in methods)
@@ -19,7 +21,7 @@ public static class HandlerBuilder
             var markerBuildInfo = MarkerBuildInfo.BuildFrom(originalClass, marker!, method, reportDiagnostic);
             yield return (markerBuildInfo == null)
                     ? (null, string.Empty)
-                    : (Convert(method, markerBuildInfo!, originalClass, reportDiagnostic), marker!.MarkerName()!);
+                    : (Convert(method, markerBuildInfo!, originalClass, returnType,reportDiagnostic), marker!.MarkerName()!);
         }
     }
 
@@ -46,7 +48,7 @@ public static class HandlerBuilder
 
     internal static ClassDeclarationSyntax Convert(this MethodDeclarationSyntax method,
         MarkerBuildInfo info,
-        ClassDeclarationSyntax originalClass,
+        ClassDeclarationSyntax originalClass, TypeSyntax returnType,
         Action<Diagnostic> reportDiagnostic)
     {
         var handlerClass = SF.ClassDeclaration(method.Identifier.Text + Strings.Names.HandlerSuffix)
@@ -55,7 +57,7 @@ public static class HandlerBuilder
                     SF.SingletonSeparatedList(info.BaseType!)))
                 .AddWrapperField(originalClass)
                 .AddWrapperConstructor(originalClass, info.BaseInitializer);
-        return info.ExecuteMethod(handlerClass, method, info);
+        return info.ExecuteMethod(handlerClass, method, info, returnType);
     }
 
     private static ClassDeclarationSyntax AddWrapperConstructor(this ClassDeclarationSyntax handlerClass, ClassDeclarationSyntax wrapperClass, ConstructorInitializerSyntax? initializer)

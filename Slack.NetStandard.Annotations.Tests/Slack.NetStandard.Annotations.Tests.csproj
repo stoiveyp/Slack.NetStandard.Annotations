@@ -9,6 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Examples\AlternativeReturnType.cs" />
 	  <Compile Remove="Examples\EventHandler.cs" />
 	  <Compile Remove="Examples\InteractionPayload.cs" />
 	  <Compile Remove="Examples\SlashCommand.cs" />
@@ -16,6 +17,9 @@
 
 	<ItemGroup>
 	  <None Include="Examples\EventHandler.cs">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="Examples\AlternativeReturnType.cs">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	  <None Include="Examples\InteractionPayload.cs">

@@ -84,8 +84,13 @@ namespace Slack.NetStandard.Annotations
 
             public static GenericNameSyntax TaskOf(string type)
             {
+                return TaskOf(SF.IdentifierName(type));
+            }
+
+            public static GenericNameSyntax TaskOf(TypeSyntax type)
+            {
                 return SF.GenericName(Task).WithTypeArgumentList(
-                    SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(type))));
+                    SF.TypeArgumentList(SF.SingletonSeparatedList(type)));
             }
         }
     }
