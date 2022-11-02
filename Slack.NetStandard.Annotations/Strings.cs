@@ -69,18 +69,18 @@ namespace Slack.NetStandard.Annotations
             public const string ShortcutPayload = nameof(ShortcutPayload);
             public const string GlobalShortcutPayload = nameof(GlobalShortcutPayload);
 
-            public static GenericNameSyntax RequestHandlerWith(IdentifierNameSyntax? syntax = null) => SF
+            public static GenericNameSyntax RequestHandlerWith(TypeSyntax returnType) => SF
                 .GenericName(RequestHandlerInterface).WithTypeArgumentList(
-                    SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(syntax ?? SF.IdentifierName(Object))));
+                    SF.TypeArgumentList(SF.SingletonSeparatedList(returnType)));
 
-            public static GenericNameSyntax SlackEventHandler(TypeSyntax type) => SF.GenericName(EventHandler)
-                .WithTypeArgumentList(SF.TypeArgumentList(SF.SeparatedList(new []{type, SF.IdentifierName(Object)})));
+            public static GenericNameSyntax SlackEventHandler(TypeSyntax type, TypeSyntax returnType) => SF.GenericName(EventHandler)
+                .WithTypeArgumentList(SF.TypeArgumentList(SF.SeparatedList(new []{type, returnType})));
 
-            public static GenericNameSyntax SlashCommandHandler() => SF.GenericName(CommandHandler)
-            .WithTypeArgumentList(SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(Object))));
+            public static GenericNameSyntax SlashCommandHandler(TypeSyntax returnType) => SF.GenericName(CommandHandler)
+            .WithTypeArgumentList(SF.TypeArgumentList(SF.SingletonSeparatedList(returnType)));
 
-            public static GenericNameSyntax SlackPayloadHandler(TypeSyntax type) => SF.GenericName(PayloadHandler)
-                .WithTypeArgumentList(SF.TypeArgumentList(SF.SeparatedList(new[] { type, SF.IdentifierName(Object) })));
+            public static GenericNameSyntax SlackPayloadHandler(TypeSyntax type, TypeSyntax returnType) => SF.GenericName(PayloadHandler)
+                .WithTypeArgumentList(SF.TypeArgumentList(SF.SeparatedList(new[] { type, returnType })));
 
             public static GenericNameSyntax TaskOf(string type)
             {

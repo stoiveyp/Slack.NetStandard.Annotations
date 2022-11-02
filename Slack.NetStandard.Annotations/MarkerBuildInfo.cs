@@ -16,7 +16,8 @@ internal class MarkerBuildInfo
     public static MarkerBuildInfo? BuildFrom(ClassDeclarationSyntax cls, AttributeSyntax marker, MethodDeclarationSyntax method, Action<Diagnostic> reportDiagnostic)
     {
         MarkerBuildInfo buildInfo = new MarkerBuildInfo();
-        if (!SetBaseType(cls, method, marker, buildInfo))
+        var returnType = AppInformation.AppReturnType(cls);
+        if (!SetBaseType(cls, method, marker, buildInfo, returnType))
         {
             return null;
         }
@@ -30,7 +31,7 @@ internal class MarkerBuildInfo
         SelectExecute(AttributeSyntax marker)
         => marker.IsSlashCommandMarker() ? SlashCommandExecute : SlackTypeHandlerExecute;
 
-    private static bool SetBaseType(ClassDeclarationSyntax cls, MethodDeclarationSyntax method, AttributeSyntax marker, MarkerBuildInfo buildInfo)
+    private static bool SetBaseType(ClassDeclarationSyntax cls, MethodDeclarationSyntax method, AttributeSyntax marker, MarkerBuildInfo buildInfo, TypeSyntax returnType)
     {
         var typeCheck = method.AttributeLists.SelectMany(a => a.Attributes)
             .FirstOrDefault(a => a.MarkerName() == nameof(SlackMatchesAttribute).NameOnly());
@@ -45,7 +46,7 @@ internal class MarkerBuildInfo
                 return false;
             }
 
-            buildInfo.BaseType = SF.SimpleBaseType(marker.IsEventMarker() ? Strings.Types.SlackEventHandler(buildInfo.HandlerType!) : Strings.Types.SlackPayloadHandler(buildInfo.HandlerType!));
+            buildInfo.BaseType = SF.SimpleBaseType(marker.IsEventMarker() ? Strings.Types.SlackEventHandler(buildInfo.HandlerType!, returnType) : Strings.Types.SlackPayloadHandler(buildInfo.HandlerType!, returnType));
 
             if (typeCheckMethod != null)
             {
@@ -62,7 +63,7 @@ internal class MarkerBuildInfo
         else if (marker.IsSlashCommandMarker())
         {
             buildInfo.BaseType =
-                SF.SimpleBaseType(Strings.Types.SlashCommandHandler());
+                SF.SimpleBaseType(Strings.Types.SlashCommandHandler(returnType));
 
             var markers = new List<ArgumentSyntax>();
 
