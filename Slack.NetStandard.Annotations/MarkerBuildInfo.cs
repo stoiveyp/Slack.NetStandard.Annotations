@@ -9,14 +9,15 @@ internal class MarkerBuildInfo
 {
     public BaseTypeSyntax? BaseType { get; set; }
     public ConstructorInitializerSyntax? BaseInitializer { get; set; }
-    public Func<ClassDeclarationSyntax, MethodDeclarationSyntax, MarkerBuildInfo, ClassDeclarationSyntax> ExecuteMethod { get; set; }
+    public Func<ClassDeclarationSyntax, MethodDeclarationSyntax, MarkerBuildInfo, TypeSyntax, ClassDeclarationSyntax> ExecuteMethod { get; set; }
     public TypeSyntax? HandlerType { get; set; }
     public ArgumentMapper Arguments { get; set; }
 
     public static MarkerBuildInfo? BuildFrom(ClassDeclarationSyntax cls, AttributeSyntax marker, MethodDeclarationSyntax method, Action<Diagnostic> reportDiagnostic)
     {
         MarkerBuildInfo buildInfo = new MarkerBuildInfo();
-        if (!SetBaseType(cls, method, marker, buildInfo))
+        var returnType = AppInformation.AppReturnType(cls);
+        if (!SetBaseType(cls, method, marker, buildInfo, returnType))
         {
             return null;
         }
@@ -26,11 +27,11 @@ internal class MarkerBuildInfo
         return buildInfo;
     }
 
-    private static Func<ClassDeclarationSyntax, MethodDeclarationSyntax, MarkerBuildInfo, ClassDeclarationSyntax>
+    private static Func<ClassDeclarationSyntax, MethodDeclarationSyntax, MarkerBuildInfo, TypeSyntax, ClassDeclarationSyntax>
         SelectExecute(AttributeSyntax marker)
         => marker.IsSlashCommandMarker() ? SlashCommandExecute : SlackTypeHandlerExecute;
 
-    private static bool SetBaseType(ClassDeclarationSyntax cls, MethodDeclarationSyntax method, AttributeSyntax marker, MarkerBuildInfo buildInfo)
+    private static bool SetBaseType(ClassDeclarationSyntax cls, MethodDeclarationSyntax method, AttributeSyntax marker, MarkerBuildInfo buildInfo, TypeSyntax returnType)
     {
         var typeCheck = method.AttributeLists.SelectMany(a => a.Attributes)
             .FirstOrDefault(a => a.MarkerName() == nameof(SlackMatchesAttribute).NameOnly());
@@ -45,7 +46,7 @@ internal class MarkerBuildInfo
                 return false;
             }
 
-            buildInfo.BaseType = SF.SimpleBaseType(marker.IsEventMarker() ? Strings.Types.SlackEventHandler(buildInfo.HandlerType!) : Strings.Types.SlackPayloadHandler(buildInfo.HandlerType!));
+            buildInfo.BaseType = SF.SimpleBaseType(marker.IsEventMarker() ? Strings.Types.SlackEventHandler(buildInfo.HandlerType!, returnType) : Strings.Types.SlackPayloadHandler(buildInfo.HandlerType!, returnType));
 
             if (typeCheckMethod != null)
             {
@@ -62,7 +63,7 @@ internal class MarkerBuildInfo
         else if (marker.IsSlashCommandMarker())
         {
             buildInfo.BaseType =
-                SF.SimpleBaseType(Strings.Types.SlashCommandHandler());
+                SF.SimpleBaseType(Strings.Types.SlashCommandHandler(returnType));
 
             var markers = new List<ArgumentSyntax>();
 
@@ -162,12 +163,12 @@ internal class MarkerBuildInfo
     }
 
     private static ClassDeclarationSyntax SlashCommandExecute(ClassDeclarationSyntax handlerClass,
-        MethodDeclarationSyntax method, MarkerBuildInfo info)
+        MethodDeclarationSyntax method, MarkerBuildInfo info, TypeSyntax returnType)
     {
-        var returnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
-            SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(Strings.Types.Object))));
+        var genericReturnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
+            SF.TypeArgumentList(SF.SingletonSeparatedList(returnType)));
 
-        var newMethod = SF.MethodDeclaration(returnType, Strings.Names.HandleCommandMethodName)
+        var newMethod = SF.MethodDeclaration(genericReturnType, Strings.Names.HandleCommandMethodName)
             .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword), SF.Token(SyntaxKind.OverrideKeyword)))
             .WithParameterList(
                 SF.ParameterList(SF.SeparatedList(new[]{
@@ -178,12 +179,12 @@ internal class MarkerBuildInfo
     }
 
     private static ClassDeclarationSyntax SlackTypeHandlerExecute(ClassDeclarationSyntax handlerClass,
-        MethodDeclarationSyntax method, MarkerBuildInfo info)
+        MethodDeclarationSyntax method, MarkerBuildInfo info, TypeSyntax returnType)
     {
-        var returnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
-            SF.TypeArgumentList(SF.SingletonSeparatedList<TypeSyntax>(SF.IdentifierName(Strings.Types.Object))));
+        var genericReturnType = SF.GenericName(Strings.Types.Task).WithTypeArgumentList(
+            SF.TypeArgumentList(SF.SingletonSeparatedList(returnType)));
 
-        var newMethod = SF.MethodDeclaration(returnType, Strings.Names.HandleMethodName)
+        var newMethod = SF.MethodDeclaration(genericReturnType, Strings.Names.HandleMethodName)
             .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword), SF.Token(SyntaxKind.OverrideKeyword)))
             .WithParameterList(
                 SF.ParameterList(SF.SingletonSeparatedList(SF.Parameter(SF.Identifier(Strings.Names.ContextParameter)).WithType(SF.IdentifierName(Strings.Types.SlackContext)))));

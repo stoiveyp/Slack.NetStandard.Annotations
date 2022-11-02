@@ -2,5 +2,8 @@
 {
     public class SlackAppAttribute:Attribute
     {
+        public SlackAppAttribute(){}
+
+        public SlackAppAttribute(Type returnType){}
     }
 }
