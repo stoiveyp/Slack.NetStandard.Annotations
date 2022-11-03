@@ -1,7 +1,6 @@
 ﻿using Slack.NetStandard.Annotations.Markers;
 using Slack.NetStandard.EventsApi.CallbackEvents;
 using Slack.NetStandard.Interaction;
-using Slack.NetStandard.RequestHandler.Handlers;
 
 namespace ExampleApp
 {

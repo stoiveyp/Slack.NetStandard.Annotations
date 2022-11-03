@@ -9,6 +9,14 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<Title>Slack.NetStandard.Annotations</Title>
+		<Authors>Steven Pears</Authors>
+		<Company />
+		<Description>Library that uses method attributes to generate a Slack app </Description>
+		<RepositoryUrl>https://github.com/stoiveyp/Slack.NetStandard.Annotations</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/stoiveyp/Slack.NetStandard.Annotations</PackageProjectUrl>
+		<PackageTags>slack, generator</PackageTags>
+		<PackageReleaseNotes>Initial release</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
