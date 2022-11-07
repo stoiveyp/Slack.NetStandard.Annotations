@@ -21,6 +21,7 @@ public static class PipelineBuilder
             Strings.Usings.SlackNetstandard(),
             Strings.Usings.SlackRequestHandler(),
             Strings.Usings.Handlers(),
+            Strings.Usings.Socket(),
             Strings.Usings.Tasks(),
         }.Select(SF.UsingDirective!));
 

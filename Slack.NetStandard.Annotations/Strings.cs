@@ -46,6 +46,7 @@ namespace Slack.NetStandard.Annotations
             public static NameSyntax Tasks() => NamespaceHelper.Build("System", "Threading", "Tasks")!;
             public static NameSyntax SlackRequestHandler() => NamespaceHelper.Build(SlackNetstandard(),"RequestHandler")!;
             public static NameSyntax Handlers() => NamespaceHelper.Build(SlackRequestHandler(), "Handlers");
+            public static NameSyntax Socket() => NamespaceHelper.Build(SlackNetstandard(), "Socket");
         }
 
         public static class Types
