@@ -5,14 +5,15 @@ VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{655A71DF-2595-4E17-B0B0-2309BD98F2E5}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\main.yml = .github\workflows\main.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slack.NetStandard.Annotations", "Slack.NetStandard.Annotations\Slack.NetStandard.Annotations.csproj", "{56DCC073-F97E-44C9-AC74-2A00EA5F4019}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Slack.NetStandard.Annotations", "Slack.NetStandard.Annotations\Slack.NetStandard.Annotations.csproj", "{56DCC073-F97E-44C9-AC74-2A00EA5F4019}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slack.NetStandard.Annotations.Tests", "Slack.NetStandard.Annotations.Tests\Slack.NetStandard.Annotations.Tests.csproj", "{7961C55C-9F36-4BC8-8B49-670EE020D899}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Slack.NetStandard.Annotations.Tests", "Slack.NetStandard.Annotations.Tests\Slack.NetStandard.Annotations.Tests.csproj", "{7961C55C-9F36-4BC8-8B49-670EE020D899}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleApp", "ExampleApp\ExampleApp.csproj", "{AEBAC537-AE15-40BE-BBBD-72090B8C3E2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleApp", "ExampleApp\ExampleApp.csproj", "{AEBAC537-AE15-40BE-BBBD-72090B8C3E2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
