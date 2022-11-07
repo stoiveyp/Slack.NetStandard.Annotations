@@ -24,7 +24,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
                 _wrapper = wrapper;
             }
 
-            public override Task<object> HandleCommand(SlashCommand slashCommand, SlackContext context) => Task.FromResult(_wrapper.SlashCommand(slashCommand));
+            protected override Task<object> HandleCommand(SlashCommand slashCommand, SlackContext context) => Task.FromResult(_wrapper.SlashCommand(slashCommand));
         }
 
         private class SlashCommand2Handler : SlashCommandHandler<object>
@@ -36,7 +36,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
                 _wrapper = wrapper;
             }
 
-            public override Task<object> HandleCommand(SlashCommand slashCommand, SlackContext context) => _wrapper.SlashCommand2(slashCommand, context);
+            protected override Task<object> HandleCommand(SlashCommand slashCommand, SlackContext context) => _wrapper.SlashCommand2(slashCommand, context);
         }
 
         private class SlashCommand3Handler : SlashCommandHandler<object>
@@ -48,7 +48,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
                 _wrapper = wrapper;
             }
 
-            public override Task<object> HandleCommand(SlashCommand slashCommand, SlackContext context) => _wrapper.SlashCommand3(slashCommand, context);
+            protected override Task<object> HandleCommand(SlashCommand slashCommand, SlackContext context) => _wrapper.SlashCommand3(slashCommand, context);
         }
 
         public Task<object> Execute(SlackContext context) => _pipeline.Process(context);

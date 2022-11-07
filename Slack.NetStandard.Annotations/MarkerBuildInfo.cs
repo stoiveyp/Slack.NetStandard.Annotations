@@ -169,7 +169,7 @@ internal class MarkerBuildInfo
             SF.TypeArgumentList(SF.SingletonSeparatedList(returnType)));
 
         var newMethod = SF.MethodDeclaration(genericReturnType, Strings.Names.HandleCommandMethodName)
-            .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.PublicKeyword), SF.Token(SyntaxKind.OverrideKeyword)))
+            .WithModifiers(SF.TokenList(SF.Token(SyntaxKind.ProtectedKeyword), SF.Token(SyntaxKind.OverrideKeyword)))
             .WithParameterList(
                 SF.ParameterList(SF.SeparatedList(new[]{
                     SF.Parameter(SF.Identifier(Strings.Names.CommandParameter)).WithType(SF.IdentifierName(Strings.Types.SlashCommand)),
