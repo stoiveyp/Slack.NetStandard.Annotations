@@ -20,6 +20,8 @@ public static class PipelineBuilder
             Strings.Usings.System(),
             Strings.Usings.SlackNetstandard(),
             Strings.Usings.SlackRequestHandler(),
+            Strings.Usings.Interaction(),
+            Strings.Usings.Events(),
             Strings.Usings.Handlers(),
             Strings.Usings.Socket(),
             Strings.Usings.Tasks(),
