@@ -49,6 +49,7 @@ namespace Slack.NetStandard.Annotations
             public static NameSyntax Socket() => NamespaceHelper.Build(SlackNetstandard(), "Socket");
             public static NameSyntax Interaction() => NamespaceHelper.Build(SlackNetstandard(), "Interaction");
             public static NameSyntax Events() => NamespaceHelper.Build(SlackNetstandard(), "EventsApi");
+            public static NameSyntax CallbackEvents() => NamespaceHelper.Build(Events(), "CallbackEvents");
         }
 
         public static class Types

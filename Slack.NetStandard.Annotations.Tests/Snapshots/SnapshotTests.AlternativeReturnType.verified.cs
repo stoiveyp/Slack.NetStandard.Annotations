@@ -2,6 +2,9 @@
 using System;
 using Slack.NetStandard;
 using Slack.NetStandard.RequestHandler;
+using Slack.NetStandard.Interaction;
+using Slack.NetStandard.EventsApi;
+using Slack.NetStandard.EventsApi.CallbackEvents;
 using Slack.NetStandard.RequestHandler.Handlers;
 using Slack.NetStandard.Socket;
 using System.Threading.Tasks;
