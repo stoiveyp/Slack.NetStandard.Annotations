@@ -10,7 +10,7 @@ namespace ExampleApp
         [RespondsToEvent(typeof(AppHomeOpened))]
         public async Task<object> GenerateHome(AppHomeOpened appHome)
         {
-            return Task.FromResult((object)null!);
+            return await Task.FromResult((object)null!);
         }
 
         [RespondsToSlashCommand("command")]
@@ -22,7 +22,7 @@ namespace ExampleApp
         [RespondsToSlashCommand("command2")]
         public async Task<object> ExampleAsyncCommand(SlashCommand command)
         {
-            return Task.FromResult((object)null!);
+            return await Task.FromResult((object)null!);
         }
     }
 }

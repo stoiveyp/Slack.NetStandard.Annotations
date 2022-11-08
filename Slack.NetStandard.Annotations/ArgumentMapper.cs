@@ -17,7 +17,7 @@ namespace Slack.NetStandard.Annotations
             foreach (var param in method.ParameterList.Parameters)
             {
                 var type = TypeName(param);
-                if (MapCommon(mapper, type))
+                if (type == null || MapCommon(mapper, type))
                 {
                     continue;
                 }
@@ -58,8 +58,12 @@ namespace Slack.NetStandard.Annotations
             return false;
         }
 
-        private static void MapContextProperty(ArgumentMapper mapper, TypeSyntax type, string contextProperty)
+        private static void MapContextProperty(ArgumentMapper mapper, TypeSyntax? type, string contextProperty)
         {
+            if (type == null)
+            {
+                return;
+            }
             mapper.AddArgument(SF.CastExpression(type, SF.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                 SF.IdentifierName(Strings.Names.ContextParameter), SF.IdentifierName(contextProperty))));
         }

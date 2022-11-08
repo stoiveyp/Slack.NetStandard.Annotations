@@ -9,9 +9,9 @@ internal class MarkerBuildInfo
 {
     public BaseTypeSyntax? BaseType { get; set; }
     public ConstructorInitializerSyntax? BaseInitializer { get; set; }
-    public Func<ClassDeclarationSyntax, MethodDeclarationSyntax, MarkerBuildInfo, TypeSyntax, ClassDeclarationSyntax> ExecuteMethod { get; set; }
+    public Func<ClassDeclarationSyntax, MethodDeclarationSyntax, MarkerBuildInfo, TypeSyntax, ClassDeclarationSyntax>? ExecuteMethod { get; set; }
     public TypeSyntax? HandlerType { get; set; }
-    public ArgumentMapper Arguments { get; set; }
+    public ArgumentMapper? Arguments { get; set; }
 
     public static MarkerBuildInfo? BuildFrom(ClassDeclarationSyntax cls, AttributeSyntax marker, MethodDeclarationSyntax method, Action<Diagnostic> reportDiagnostic)
     {
@@ -56,7 +56,7 @@ internal class MarkerBuildInfo
             else if (marker.IsInteractionMarker() && (marker.ArgumentList?.Arguments.Count  ?? 0) > 1)
             {
                 buildInfo.BaseInitializer = SF.ConstructorInitializer(SyntaxKind.BaseConstructorInitializer,
-                    SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(InteractionArgumentCheck(buildInfo.HandlerType, marker.ArgumentList.Arguments[1].Expression))))
+                    SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(InteractionArgumentCheck(buildInfo.HandlerType, marker.ArgumentList!.Arguments[1].Expression))))
                 );
             }
         }
@@ -192,12 +192,12 @@ internal class MarkerBuildInfo
         return handlerClass.AddMembers(AddWrapperCall(method, newMethod, info.Arguments, method.Identifier.Text));
     }
 
-    private static MemberDeclarationSyntax AddWrapperCall(MethodDeclarationSyntax method, MethodDeclarationSyntax newMethod, ArgumentMapper mapper, string methodName)
+    private static MemberDeclarationSyntax AddWrapperCall(MethodDeclarationSyntax method, MethodDeclarationSyntax newMethod, ArgumentMapper? mapper, string methodName)
     {
         var runWrapper = SF.InvocationExpression(SF.MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression, SF.IdentifierName(Strings.Names.WrapperPropertyName),
                 SF.IdentifierName(methodName)),
-            SF.ArgumentList(SF.SeparatedList(mapper.Arguments.Select(a => a.Argument))));
+            SF.ArgumentList(SF.SeparatedList(mapper?.Arguments.Select(a => a.Argument) ?? Array.Empty<ArgumentSyntax>())));
 
         if (ArgumentMapper.TypeName(method.ReturnType) != Strings.Types.Task)
         {
@@ -206,7 +206,7 @@ internal class MarkerBuildInfo
                 .WithArgumentList(SF.ArgumentList(SF.SingletonSeparatedList(SF.Argument(runWrapper))));
         }
 
-        if (mapper.InlineOnly)
+        if (mapper?.InlineOnly ?? true)
         {
             newMethod = newMethod.WithExpressionBody(SF.ArrowExpressionClause(runWrapper)).WithSemicolonToken(SF.Token(SyntaxKind.SemicolonToken));
         }

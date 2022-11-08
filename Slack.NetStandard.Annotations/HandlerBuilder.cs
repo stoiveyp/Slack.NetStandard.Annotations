@@ -57,7 +57,7 @@ public static class HandlerBuilder
                     SF.SingletonSeparatedList(info.BaseType!)))
                 .AddWrapperField(originalClass)
                 .AddWrapperConstructor(originalClass, info.BaseInitializer);
-        return info.ExecuteMethod(handlerClass, method, info, returnType);
+        return info.ExecuteMethod!(handlerClass, method, info, returnType);
     }
 
     private static ClassDeclarationSyntax AddWrapperConstructor(this ClassDeclarationSyntax handlerClass, ClassDeclarationSyntax wrapperClass, ConstructorInitializerSyntax? initializer)

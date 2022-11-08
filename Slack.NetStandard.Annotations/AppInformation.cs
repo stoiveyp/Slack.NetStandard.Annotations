@@ -32,7 +32,7 @@ public class AppInformation
     public static AppInformation GenerateFrom(ClassDeclarationSyntax cls, Action<Diagnostic> reportDiagnostic)
     {
         var returnType = AppReturnType(cls);
-        var groupsOfHandlers = cls.Members.OfType<MethodDeclarationSyntax>().ConvertTagged(cls,returnType, reportDiagnostic).Where(c => c.Cls != null).ToArray().GroupBy(t => t.Marker,t => t.Cls);
+        var groupsOfHandlers = cls.Members.OfType<MethodDeclarationSyntax>().ConvertTagged(cls,returnType, reportDiagnostic).Where(c => c.Cls != null).ToArray().GroupBy(t => t.Marker,t => t.Cls!);
         return new AppInformation(groupsOfHandlers, returnType);
     }
 
