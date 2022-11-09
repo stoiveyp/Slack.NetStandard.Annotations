@@ -51,13 +51,45 @@ This is the default return value assumed by the generator if you just use the st
 You can pass in a Type parameter if you want the return type to be something else
 
 ```csharp
-[SlackApp(typeof(Message))]
-public class ExampleApp {}
+[SlackApp(typeof(ApiGatewayProxyResponse))]
+public class ExampleApp {
+        [RespondsToEvent(typeof(AppHomeOpened))]
+        public async Task<ApiGatewayProxyResponse> GenerateHome(AppHomeOpened appHome)
+        {
+            return Task.FromResult((object)null!);
+        }
+        ...
 ```
 
 ### What if I want a method to match more specific criteria?
 
 In this case there is the `SlackMatches` attribute that you can use to point to a static method within the class.
 This method must have the signature `static bool MethodName(SlackContext)` and it will be used as a secondary check on top of the standard attribute matching
+For example
+
+```csharp
+internal static TestCmd(SlackContext cxt) => true;
+
+[RespondsToSlashCommand()]
+[SlackMatches(nameof(TestCmd))]
+public Task<object> SlashCommand(SlashCommand evt, SlackContext context)
+{
+    return Task.FromResult((object)null!);
+}
+```
 
 # Attribute Information
+
+There are several attributes available right now. The method name you attach these two doesn't matter and can be called anything, they're just examples.
+
+## RespondsToEvent
+
+Details Coming Soon
+
+## RespondsToInteraction
+
+Details Coming Soon
+
+## RespondsToCommand
+
+Details Coming Soon
