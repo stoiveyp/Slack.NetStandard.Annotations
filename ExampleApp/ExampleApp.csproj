@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Slack.NetStandard.Annotations\Slack.NetStandard.Annotations.csproj" OutputItemType="Analyzer" />
+    <PackageReference Include="Slack.NetStandard.Annotations" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
