@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Slack.NetStandard.Annotatio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Slack.NetStandard.Annotations.Tests", "Slack.NetStandard.Annotations.Tests\Slack.NetStandard.Annotations.Tests.csproj", "{7961C55C-9F36-4BC8-8B49-670EE020D899}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleApp", "ExampleApp\ExampleApp.csproj", "{6B81A4E4-82DF-4FD6-88F0-81EBE98BA46F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{7961C55C-9F36-4BC8-8B49-670EE020D899}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7961C55C-9F36-4BC8-8B49-670EE020D899}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7961C55C-9F36-4BC8-8B49-670EE020D899}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6B81A4E4-82DF-4FD6-88F0-81EBE98BA46F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6B81A4E4-82DF-4FD6-88F0-81EBE98BA46F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6B81A4E4-82DF-4FD6-88F0-81EBE98BA46F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6B81A4E4-82DF-4FD6-88F0-81EBE98BA46F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
