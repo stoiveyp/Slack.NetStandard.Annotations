@@ -21,12 +21,13 @@ public static class HandlerBuilder
             var markerBuildInfo = MarkerBuildInfo.BuildFrom(originalClass, marker!, method, reportDiagnostic);
             yield return (markerBuildInfo == null)
                     ? (null, string.Empty)
-                    : (Convert(method, markerBuildInfo!, originalClass, returnType,reportDiagnostic), marker!.MarkerName()!);
+                    : (Convert(method, markerBuildInfo!, originalClass, returnType,reportDiagnostic), marker.IsCallbackEventMarker() ? nameof(RespondsToEventAttribute).NameOnly() : marker!.MarkerName()!);
         }
     }
 
     private static readonly string[] ValidMarkers = {
         nameof(RespondsToEventAttribute).NameOnly(),
+        nameof(RespondsToEventCallbackAttribute).NameOnly(),
         nameof(RespondsToSlashCommandAttribute).NameOnly(),
         nameof(RespondsToInteractionAttribute).NameOnly()
     };

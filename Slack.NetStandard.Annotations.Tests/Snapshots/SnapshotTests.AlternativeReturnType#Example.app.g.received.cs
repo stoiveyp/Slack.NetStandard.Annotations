@@ -31,7 +31,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
             protected override Task<Slack.NetStandard.Messages.Message> HandleCommand(SlashCommand slashCommand, SlackContext context) => _wrapper.SlashCommand(slashCommand);
         }
 
-        private class ShortcutPayloadHandler : SlackPayloadHandler<ShortcutPayload, Slack.NetStandard.Messages.Message>
+        private class ShortcutPayloadHandler :
         {
             private Example _wrapper { get; }
 

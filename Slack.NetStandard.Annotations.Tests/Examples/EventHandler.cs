@@ -12,13 +12,13 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
     [SlackApp]
     public partial class Example
     {
-        [RespondsToEvent(typeof(AppHomeOpened))]
+        [RespondsToEventCallback(typeof(AppHomeOpened))]
         public object RenderHomePage(AppHomeOpened evt)
         {
 
         }
 
-        internal static bool Test(UrlVerification url) => true;
+        internal static bool Test(SlackContext context) => true;
 
         [RespondsToEvent(typeof(UrlVerification))]
         [SlackMatches(nameof(Test))]

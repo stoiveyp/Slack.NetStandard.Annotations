@@ -38,7 +38,7 @@ internal class MarkerBuildInfo
 
         var typeCheckMethod = GetMethodNameFromTypeCheck(typeCheck);
 
-        if (marker.IsEventMarker() || marker.IsInteractionMarker())
+        if (marker.IsEventMarker() || marker.IsInteractionMarker() || marker.IsCallbackEventMarker())
         {
             buildInfo.HandlerType = GetHandlerType(method, marker);
             if (buildInfo.HandlerType == null)
@@ -46,7 +46,19 @@ internal class MarkerBuildInfo
                 return false;
             }
 
-            buildInfo.BaseType = SF.SimpleBaseType(marker.IsEventMarker() ? Strings.Types.SlackEventHandler(buildInfo.HandlerType!, returnType) : Strings.Types.SlackPayloadHandler(buildInfo.HandlerType!, returnType));
+            if (marker.IsEventMarker())
+            {
+                buildInfo.BaseType = SF.SimpleBaseType(Strings.Types.SlackEventHandler(buildInfo.HandlerType!, returnType));
+            }
+            else if (marker.IsCallbackEventMarker())
+            {
+                buildInfo.BaseType = SF.SimpleBaseType(Strings.Types.SlackEventCallbackHandler(buildInfo.HandlerType!, returnType));
+            }
+            else
+            {
+                buildInfo.BaseType = SF.SimpleBaseType(Strings.Types.SlackPayloadHandler(buildInfo.HandlerType!, returnType));
+            }
+                
 
             if (typeCheckMethod != null)
             {

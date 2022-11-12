@@ -13,6 +13,11 @@ namespace Slack.NetStandard.Annotations
             return markerInfo != null && markerInfo.MarkerName() == nameof(RespondsToSlashCommandAttribute).NameOnly();
         }
 
+        public static bool IsCallbackEventMarker(this AttributeSyntax? markerInfo)
+        {
+            return markerInfo != null && markerInfo.MarkerName() == nameof(RespondsToEventCallbackAttribute).NameOnly();
+        }
+
         public static bool IsEventMarker(this AttributeSyntax? markerInfo)
         {
             return markerInfo != null && markerInfo.MarkerName() == nameof(RespondsToEventAttribute).NameOnly();

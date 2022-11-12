@@ -46,7 +46,7 @@ public class AppInformation
         var argumentList = new List<ExpressionSyntax>();
         foreach (var grouping in Handlers)
         {
-            if (grouping.Key == nameof(RespondsToEventAttribute).NameOnly())
+            if (grouping.Key == nameof(RespondsToEventAttribute).NameOnly() || grouping.Key == nameof(RespondsToEventCallbackAttribute).NameOnly() )
             {
                 argumentList.Add(GroupedIfMultiple(SCCheck(Strings.Names.EventProperty),
                     grouping.Select(h =>

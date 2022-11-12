@@ -22,7 +22,14 @@ namespace Slack.NetStandard.Annotations
                     continue;
                 }
 
-                if (marker.IsEventMarker())
+                if (marker.IsCallbackEventMarker())
+                {
+                    if (type == TypeName(info.HandlerType))
+                    {
+                        MapCallbackProperty(mapper, param.Type);
+                    }
+                }
+                else if (marker.IsEventMarker())
                 {
                     if (type == TypeName(info.HandlerType))
                     {
@@ -66,6 +73,19 @@ namespace Slack.NetStandard.Annotations
             }
             mapper.AddArgument(SF.CastExpression(type, SF.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                 SF.IdentifierName(Strings.Names.ContextParameter), SF.IdentifierName(contextProperty))));
+        }
+
+        private static void MapCallbackProperty(ArgumentMapper mapper, TypeSyntax? type)
+        {
+            if(type == null)
+            {
+                return;
+            }
+
+            var evtCast = SF.CastExpression(SF.IdentifierName(Strings.Types.EventCallback), SF.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                SF.IdentifierName(Strings.Names.ContextParameter), SF.IdentifierName(Strings.Names.EventProperty)));
+            mapper.AddArgument(SF.CastExpression(type, SF.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                SF.ParenthesizedExpression(evtCast),SF.IdentifierName(Strings.Names.EventProperty))));
         }
 
         private void AddArgument(ExpressionSyntax expression)

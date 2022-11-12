@@ -7,11 +7,11 @@ namespace ExampleApp
     [SlackApp]
     public partial class Example
     {
-        [RespondsToEvent(typeof(AppHomeOpened))]
-        public async Task<object> GenerateHome(AppHomeOpened appHome)
-        {
-            return await Task.FromResult((object)null!);
-        }
+        //[RespondsToEventCallback(typeof(AppHomeOpened))]
+        //public async Task<object> GenerateHome(AppHomeOpened appHome)
+        //{
+        //    return await Task.FromResult((object)null!);
+        //}
 
         [RespondsToSlashCommand("command")]
         public object ExampleSyncCommand(SlashCommand command)

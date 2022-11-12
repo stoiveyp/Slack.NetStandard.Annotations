@@ -72,10 +72,15 @@ namespace Slack.NetStandard.Annotations
             public const string BlockActionsPayload = nameof(BlockActionsPayload);
             public const string ShortcutPayload = nameof(ShortcutPayload);
             public const string GlobalShortcutPayload = nameof(GlobalShortcutPayload);
+            public const string EventCallbackHandler = nameof(EventCallbackHandler);
+            public const string EventCallback = "EventCallback";
 
             public static GenericNameSyntax RequestHandlerWith(TypeSyntax returnType) => SF
                 .GenericName(RequestHandlerInterface).WithTypeArgumentList(
                     SF.TypeArgumentList(SF.SingletonSeparatedList(returnType)));
+
+            public static GenericNameSyntax SlackEventCallbackHandler(TypeSyntax type, TypeSyntax returnType) => SF.GenericName(EventCallbackHandler)
+                .WithTypeArgumentList(SF.TypeArgumentList(SF.SeparatedList(new[] { type, returnType })));
 
             public static GenericNameSyntax SlackEventHandler(TypeSyntax type, TypeSyntax returnType) => SF.GenericName(EventHandler)
                 .WithTypeArgumentList(SF.TypeArgumentList(SF.SeparatedList(new []{type, returnType})));

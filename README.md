@@ -15,7 +15,7 @@ namespace ExampleApp
     [SlackApp]
     public partial class Example
     {
-        [RespondsToEvent(typeof(AppHomeOpened))]
+        [RespondsToEventCallback(typeof(AppHomeOpened))]
         public async Task<object> GenerateHome(AppHomeOpened appHome)
         {
             return Task.FromResult((object)null!);
@@ -53,7 +53,7 @@ You can pass in a Type parameter if you want the return type to be something els
 ```csharp
 [SlackApp(typeof(ApiGatewayProxyResponse))]
 public class ExampleApp {
-        [RespondsToEvent(typeof(AppHomeOpened))]
+        [RespondsToEventCallback(typeof(AppHomeOpened))]
         public async Task<ApiGatewayProxyResponse> GenerateHome(AppHomeOpened appHome)
         {
             return Task.FromResult((object)null!);
@@ -82,13 +82,26 @@ public Task<object> SlashCommand(SlashCommand evt, SlackContext context)
 
 There are several attributes available right now. The method name you attach these two doesn't matter and can be called anything, they're just examples.
 
-## RespondsToEvent
+## RespondsToEventCallback
 
-This attribute indicates that the method is to be triggered in response to a particular event type, the event type name is indicated by the parameter passed in.
+This attribute triggers the method if a particular type of callback event (So a high level type of `EventCallback` and it's Event property is the type you passed in)
+The first parameter is the type of callback event
 
 ```csharp
-[RespondsToEvent(typeof(AppHomeOpened))]
-public async Task<ApiGatewayProxyResponse> GenerateHome(AppHomeOpened appHome)
+[RespondsToEventCallback(typeof(AppHomeOpened))]
+public async Task<object> GenerateHome(AppHomeOpened appHome)
+
+```
+
+The callback event can then be passed in to your method as a parameter (as well as the usual `SlackContext` object)
+
+## RespondsToEvent
+
+This attribute indicates that the method is to be triggered in response to a particular high level event type, the event type name is indicated by the parameter passed in.
+
+```csharp
+[RespondsToEvent(typeof(UrlVerification))]
+public async Task<ApiGatewayProxyResponse> VerifyUrl(UrlVerification appHome)
 
 ```
 

@@ -19,7 +19,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
             _pipeline = new SlackPipeline<object>(new ISlackRequestHandler<object>[]{new GroupedRequestHandler<object>((sc) => sc.Interaction != null, new ViewSubmissionPayloadHandler(this), new BlockActionPayloadResponseHandler(this), new ShortcutPayloadHandler(this), new GlobalPayloadHandler(this))});
         }
 
-        private class ViewSubmissionPayloadHandler : SlackPayloadHandler<ViewSubmissionPayload, object>
+        private class ViewSubmissionPayloadHandler :
         {
             private Example _wrapper { get; }
 
@@ -31,7 +31,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
             public override Task<object> Handle(SlackContext context) => _wrapper.ViewSubmissionPayload((ViewSubmissionPayload)context.Interaction);
         }
 
-        private class BlockActionPayloadResponseHandler : SlackPayloadHandler<BlockActionsPayload, object>
+        private class BlockActionPayloadResponseHandler :
         {
             private Example _wrapper { get; }
 
@@ -43,7 +43,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
             public override Task<object> Handle(SlackContext context) => _wrapper.BlockActionPayloadResponse((BlockActionsPayload)context.Interaction);
         }
 
-        private class ShortcutPayloadHandler : SlackPayloadHandler<ShortcutPayload, object>
+        private class ShortcutPayloadHandler :
         {
             private Example _wrapper { get; }
 
@@ -55,7 +55,7 @@ namespace Slack.NetStandard.Annotations.Tests.Examples
             public override Task<object> Handle(SlackContext context) => Task.FromResult(_wrapper.ShortcutPayload());
         }
 
-        private class GlobalPayloadHandler : SlackPayloadHandler<GlobalShortcutPayload, object>
+        private class GlobalPayloadHandler :
         {
             private Example _wrapper { get; }
 
