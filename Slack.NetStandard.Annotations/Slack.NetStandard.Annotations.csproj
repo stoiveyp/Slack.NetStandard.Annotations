@@ -17,6 +17,7 @@
 		<PackageProjectUrl>https://github.com/stoiveyp/Slack.NetStandard.Annotations</PackageProjectUrl>
 		<PackageTags>slack, generator</PackageTags>
 		<PackageReleaseNotes>Initial release</PackageReleaseNotes>
+		<Version>1.0.1</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
