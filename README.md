@@ -84,12 +84,37 @@ There are several attributes available right now. The method name you attach the
 
 ## RespondsToEvent
 
-Details Coming Soon
+This attribute indicates that the method is to be triggered in response to a particular event type, the event type name is indicated by the parameter passed in.
+
+```csharp
+[RespondsToEvent(typeof(AppHomeOpened))]
+public async Task<ApiGatewayProxyResponse> GenerateHome(AppHomeOpened appHome)
+
+```
+
+The event type can then be passed in to your method as a parameter (as well as the usual `SlackContext` object)
 
 ## RespondsToInteraction
 
-Details Coming Soon
+Use this attribute when you want a particular interaction payload.
+The first parameter is the type of payload. 
+The second optional parameter is the payload `CallbackId` property (or in the case of the BlockActionsPayload it's the first `ActionId`)
+
+```csharp
+[RespondsToInteraction(typeof(BlockActionsPayload), "actionId")]
+public async Task<object> BlockActionPayloadResponse(BlockActionsPayload blocks)
+```
+
+The interaction payload can be used by your method as a passed in parameter (as well as the usual `SlackContext` object)
 
 ## RespondsToCommand
 
-Details Coming Soon
+This attribute ensures your method is triggered by a command
+The command name is passed in as the first attribute parameter
+
+```csharp
+[RespondsToSlashCommand("command2")]
+public async Task<object> ExampleAsyncCommand(SlashCommand command)
+```
+
+The command can then be passed in as a method parameter (as well as the usual `SlackContext` object)
